@@ -39,27 +39,27 @@ class _HomePageViewState extends State<HomePageView> {
                 },
               ),
             ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: carouselItems.asMap().entries.map((entry) {
-            //     return GestureDetector(
-            //       onTap: () => _controller.animateToPage(entry.key),
-            //       child: Container(
-            //         width: 8.0,
-            //         height: 8.0,
-            //         margin: const EdgeInsets.symmetric(
-            //             vertical: 8.0, horizontal: 4.0),
-            //         decoration: BoxDecoration(
-            //           shape: BoxShape.circle,
-            //           color: (Theme.of(context).brightness == Brightness.dark
-            //                   ? Colors.white
-            //                   : Colors.black)
-            //               .withOpacity(_current == entry.key ? 0.9 : 0.2),
-            //         ),
-            //       ),
-            //     );
-            //   }).toList(),
-            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: carouselItems.asMap().entries.map((entry) {
+                return GestureDetector(
+                  onTap: () => _controller.animateToPage(entry.key),
+                  child: Container(
+                    width: 8.0,
+                    height: 8.0,
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 4.0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black)
+                          .withOpacity(_current == entry.key ? 0.9 : 0.2),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: GridView.count(
