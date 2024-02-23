@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../Constants/item_name.dart';
 import '../../Constants/shop_item_images.dart';
 import '../../bookmark section/bookmark_toggle.dart';
@@ -13,6 +12,14 @@ class TheGodfatherBook extends StatefulWidget {
 }
 
 class _TheGodfatherBookState extends State<TheGodfatherBook> {
+  late BookMarkUtil bookMarkUtil;
+
+  @override
+  void initState() {
+    super.initState();
+    bookMarkUtil = BookMarkUtil();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +33,19 @@ class _TheGodfatherBookState extends State<TheGodfatherBook> {
             itemName: theGodfather,
           ),
           ItemPriceAndBookmark(
-            bookmarkIcon: bookmarkToggleIcon,
+            bookmarkIcon: bookMarkUtil.isContained
+                ? Icons.favorite
+                : Icons.favorite_border,
             itemPrice: '543 INR',
             bookmarkFunction: () {
               setState(() {
-                bookmarkToggle(
-                  context: (context),
+                bookMarkUtil.bookmarkToggle(
+                  context: context,
                   bookmarkString: theGodfather,
                   bookmarkImage: bookOne,
                 );
               });
+              bookMarkUtil.available();
             },
           ),
           const ItemDescription(

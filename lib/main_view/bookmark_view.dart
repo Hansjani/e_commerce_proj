@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../bookmark section/bookmark_manager.dart';
-import '../bookmark section/bookmark_toggle.dart';
 
 class BookmarkView extends StatefulWidget {
   const BookmarkView({super.key});
@@ -38,7 +36,6 @@ class _BookmarkViewState extends State<BookmarkView> {
                           .removeAt(
                             bookmarkProvider.getIndexOfBookmark(bookmark),
                           );
-                      bookmarkToggleIcon = Icons.bookmark_add;
                     },
                   );
                 },

@@ -1,10 +1,9 @@
+import 'package:e_commerce_ui_1/main_view/bookmark_view.dart';
 import 'package:e_commerce_ui_1/main_view/home_page.dart';
 import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 import '../Constants/routes/routes.dart';
-import '../Constants/shop_item_images.dart';
-import 'bookmark_view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,67 +12,71 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-final FirebaseAuthService authService = FirebaseAuthService();
-
 class _HomePageState extends State<HomePage> {
+
+  int _selectedIndex = 0;
+
+  static const List<Widget> _homeOptions = <Widget>[
+    HomePageView(),
+    BookmarkView(),
+    Column(
+      children: [
+        Icon(Icons.shopping_cart_rounded)
+      ],
+    )
+  ];
+
+  void _changeView(int index){
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('E-Commerce'),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Material(
-                child: PopupMenuButton(
-                  itemBuilder: (context) => _buildMenuItems(context),
-                ),
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('E-Commerce'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: PopupMenuButton(
+              itemBuilder: (context) => _buildMenuItems(context),
             ),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(
-                icon: Icon(Icons.home),
-              ),
-              Tab(
-                icon: Icon(Icons.bookmark),
-              ),
-              Tab(
-                icon: Icon(Icons.shopping_cart_rounded),
-              ),
-            ],
           ),
+        ],
+      ),
+      body: _homeOptions.elementAt(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        selectedIconTheme: IconThemeData(
+          size: 35,
         ),
-        body: const TabBarView(
-          children: [
-            Column(
-              children: [HomePageView()],
-            ),
-            Column(
-              children: [
-                BookmarkView(),
-              ],
-            ),
-            Column(
-              children: [Icon(Icons.card_travel)],
-            )
-          ],
-        ),
+        onTap: _changeView,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Wishlist',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+        ],
       ),
     );
   }
 }
 
-List<Widget> carouselItems = [
-  Image(image: bookOne),
-  Image(image: buyBooks),
-  Image(image: buyHomeAplliances),
-  Image(image: buyLaptop),
-  Image(image: buySmartphone),
-];
+final FirebaseAuthService authService = FirebaseAuthService();
 
 List<PopupMenuEntry> _buildMenuItems(BuildContext context) {
   return <PopupMenuEntry>[

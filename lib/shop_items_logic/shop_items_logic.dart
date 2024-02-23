@@ -112,7 +112,7 @@ class ItemBuyAndCart extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: IconButton.filled(
                 onPressed: cartFunction,
-                icon: const Icon(Icons.shopping_cart),
+                icon: const Icon(Icons.add_shopping_cart),
               ),
             ),
           ),

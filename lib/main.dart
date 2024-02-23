@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider(),),
-        ChangeNotifierProvider(create: (context) => BookmarkProvider()),
+        ChangeNotifierProvider(create: (context) => BookmarkProvider(),),
       ],
       child: Consumer(
         builder: (BuildContext context, ThemeProvider themeProvider , _){
@@ -46,11 +46,8 @@ class MainApp extends StatelessWidget {
             },
             theme:ThemeData(
               brightness: Brightness.light,
+              splashColor: Colors.transparent,
             ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-            ),
-            themeMode: themeProvider.isDarkMode ? ThemeMode.dark: ThemeMode.light,
           );
         },
       ),
