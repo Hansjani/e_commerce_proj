@@ -1,4 +1,5 @@
 import 'package:e_commerce_ui_1/main_view/bookmark_view.dart';
+import 'package:e_commerce_ui_1/main_view/cart_view.dart';
 import 'package:e_commerce_ui_1/main_view/home_page.dart';
 import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +20,7 @@ class _HomePageState extends State<HomePage> {
   static const List<Widget> _homeOptions = <Widget>[
     HomePageView(),
     BookmarkView(),
-    Column(
-      children: [
-        Icon(Icons.shopping_cart_rounded)
-      ],
-    )
+    CartView(),
   ];
 
   void _changeView(int index){
@@ -53,21 +50,27 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         showUnselectedLabels: false,
         showSelectedLabels: true,
-        selectedIconTheme: IconThemeData(
+        selectedIconTheme: const IconThemeData(
           size: 35,
         ),
         onTap: _changeView,
-        items: const <BottomNavigationBarItem>[
+        items:  const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
+            icon: Badge(
+                isLabelVisible: false,
+                child: Icon(Icons.favorite),
+            ),
             label: 'Wishlist',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: Badge(
+              isLabelVisible: false,
+              child: Icon(Icons.shopping_cart),
+            ),
             label: 'Cart',
           ),
         ],
@@ -86,6 +89,7 @@ List<PopupMenuEntry> _buildMenuItems(BuildContext context) {
         title: const Text('Profile'),
         onTap: () {
           Navigator.pop(context);
+          Navigator.pushNamed(context, profileRoute);
         },
       ),
     ),

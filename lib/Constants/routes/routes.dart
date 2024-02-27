@@ -4,3 +4,6 @@ const loginRoute = '/login_page/';
 const registerRoute = '/register_page/';
 const homeRoute = '/home_page/';
 const settingsRoute = '/settings_page/';
+const theBookRoute = '/the_book/';
+const billRoute = '/bill_page/';
+const profileRoute = '/profile_page/';

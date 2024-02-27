@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class ItemImage extends StatelessWidget {
@@ -32,22 +35,50 @@ class ItemName extends StatelessWidget {
   }
 }
 
-class ItemPriceAndBookmark extends StatelessWidget {
+class ItemPriceAndWishlist extends StatefulWidget {
   final String itemPrice;
-  final VoidCallback bookmarkFunction;
-  final IconData bookmarkIcon;
+  final VoidCallback wishlistFunction;
+  final IconData wishlistIcon;
 
-  const ItemPriceAndBookmark({super.key, required this.itemPrice, required this.bookmarkFunction, required this.bookmarkIcon});
+  const ItemPriceAndWishlist(
+      {super.key,
+      required this.itemPrice,
+      required this.wishlistFunction,
+      required this.wishlistIcon});
+
+  @override
+  State<ItemPriceAndWishlist> createState() => _ItemPriceAndWishlistState();
+}
+
+class _ItemPriceAndWishlistState extends State<ItemPriceAndWishlist> {
+  int number = 0;
+
+  void add() {
+    setState(() {
+      number = number + 1;
+    });
+  }
+
+  void minus() {
+    setState(() {
+      if (number >= 1) {
+        number = number - 1;
+      } else {
+        number = 0;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('build : $number');
     return Row(
       children: [
         Expanded(
           flex: 2,
           child: Center(
             child: Text(
-              itemPrice,
+              widget.itemPrice,
               maxLines: 1,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -55,9 +86,36 @@ class ItemPriceAndBookmark extends StatelessWidget {
         ),
         Expanded(
           flex: 1,
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '+      ',
+                  recognizer: TapGestureRecognizer()..onTap = () {
+                    add();
+                  },
+                  style: const TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: number.toString(),
+                  style: const TextStyle(color: Colors.black),
+                ),
+                TextSpan(
+                  text: '      -',
+                  recognizer: TapGestureRecognizer()..onTap = () {
+                    minus();
+                  },
+                  style: const TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
           child: IconButton(
-            onPressed: bookmarkFunction,
-            icon: Icon(bookmarkIcon),
+            onPressed: widget.wishlistFunction,
+            icon: Icon(widget.wishlistIcon),
           ),
         ),
       ],
@@ -74,9 +132,12 @@ class ItemDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          itemDescription,
-          softWrap: true,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          child: Text(
+            itemDescription,
+            softWrap: true,
+          ),
         )
       ],
     );
@@ -84,40 +145,41 @@ class ItemDescription extends StatelessWidget {
 }
 
 class ItemBuyAndCart extends StatelessWidget {
-  const ItemBuyAndCart({super.key, required this.buyFunction, required this.cartFunction});
+
+  const ItemBuyAndCart(
+      {super.key, required this.buyFunction, required this.cartFunction, required this.cartIcon});
 
   final VoidCallback buyFunction;
   final VoidCallback cartFunction;
+  final IconData cartIcon;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FilledButton(
-                onPressed: buyFunction,
-                child: const Text('Buy'),
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: FilledButton(
+              onPressed: buyFunction,
+              child: const Text('Buy'),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: IconButton.filled(
-                onPressed: cartFunction,
-                icon: const Icon(Icons.add_shopping_cart),
-              ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: IconButton.filled(
+              onPressed: cartFunction,
+              icon: Icon(cartIcon)
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

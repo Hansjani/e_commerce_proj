@@ -202,6 +202,8 @@ class LoginAndRegisterEmailFormField extends StatelessWidget {
           return 'Please enter email address';
         } else if (EmailValidator.validate(value) == false) {
           return 'Please enter valid email';
+        } else if (value == 'hello'){
+          return 'write something else please';
         }
         return null;
       },
@@ -236,6 +238,8 @@ class LoginAndRegisterPhoneFormField extends StatelessWidget {
           return 'This field cannot remain empty';
         } else if (!regex.hasMatch(value)) {
           return 'This field can only contain numbers';
+        }else if (value.length != 10){
+          return 'This field must have only 10 characters';
         }
         return null;
       },

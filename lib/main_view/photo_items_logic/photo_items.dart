@@ -22,8 +22,8 @@ class PhotoItems extends StatelessWidget {
             width: 3,
           ),
           borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(8),
-            bottomRight: Radius.circular(8),
+            bottomLeft: Radius.circular(14),
+            bottomRight: Radius.circular(14),
             topLeft: Radius.circular(14),
             topRight: Radius.circular(14),
           ),

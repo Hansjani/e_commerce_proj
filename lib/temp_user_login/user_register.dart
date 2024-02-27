@@ -20,7 +20,6 @@ class RegisterPageTemp extends StatelessWidget {
   }
 }
 
-
 class UserRegisterTemp extends StatefulWidget {
   const UserRegisterTemp({super.key});
 
@@ -28,50 +27,58 @@ class UserRegisterTemp extends StatefulWidget {
   State<UserRegisterTemp> createState() => _UserRegisterTempState();
 }
 
-final GlobalKey<FormState> registerForm = GlobalKey<FormState>();
-
 class _UserRegisterTempState extends State<UserRegisterTemp> {
-  final TextEditingController _registerEmailController = TextEditingController();
+  final TextEditingController _registerEmailController =
+      TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuthService _authService = FirebaseAuthService();
+  final GlobalKey<FormState> registerForm = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      autovalidateMode: AutovalidateMode.always,
+      autovalidateMode: AutovalidateMode.disabled,
       key: registerForm,
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            LoginAndRegisterEmailFormField(
-              defineEmailController: _registerEmailController,
-            ),
-            LoginAndRegisterPhoneFormField(
-              definePhoneController: _phoneNumberController,
-            ),
-            RegisterPasswordAndConfirmPasswordFormField(
-              passwordController: _passwordController,
-              confirmPasswordController: _confirmPasswordController,
-            ),
-            LoginAndRegisterSubmitButton(
-              yourText: 'register',
-              yourFunction: () async {
-                User? user = await _authService.logUp(
-                  _registerEmailController.text,
-                  _confirmPasswordController.text,
-                );
-                if (user != null) {
-                  devtools.log(user.toString());
-                  user.reload().then((value) => Navigator.pushNamed(context, homeRoute));
-                } else {
-                  devtools.log('retry');
-                  user?.reload().then((value) => Navigator.pushNamed(context, loginRoute));
-                }
-              },
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              LoginAndRegisterEmailFormField(
+                defineEmailController: _registerEmailController,
+              ),
+              LoginAndRegisterPhoneFormField(
+                definePhoneController: _phoneNumberController,
+              ),
+              RegisterPasswordAndConfirmPasswordFormField(
+                passwordController: _passwordController,
+                confirmPasswordController: _confirmPasswordController,
+              ),
+              LoginAndRegisterSubmitButton(
+                yourText: 'register',
+                yourFunction: () async {
+                  if (registerForm.currentState!.validate()) {
+                    User? user = await _authService.logUp(
+                      _registerEmailController.text,
+                      _confirmPasswordController.text,
+                    );
+                    if (user != null) {
+                      devtools.log(user.toString());
+                      user.reload().then(
+                          (value) => Navigator.pushNamedAndRemoveUntil(context, homeRoute,(route) => false,));
+                    } else {
+                      devtools.log('retry');
+                      user?.reload().then(
+                          (value) => Navigator.pushNamedAndRemoveUntil(context, loginRoute,(route) => false,));
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

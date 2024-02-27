@@ -1,5 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:e_commerce_ui_1/main_view/photoitems_logic/phot_items.dart';
+import 'package:e_commerce_ui_1/main_view/photo_items_logic/photo_items.dart';
 import 'package:flutter/material.dart';
 import '../Constants/routes/routes.dart';
 import '../Constants/shop_item_images.dart';
@@ -28,8 +28,8 @@ class _HomePageViewState extends State<HomePageView> {
               options: CarouselOptions(
                 autoPlay: false,
                 autoPlayAnimationDuration: const Duration(seconds: 1),
-                aspectRatio: 1.3,
-                viewportFraction: 0.9,
+                aspectRatio: 1.4,
+                viewportFraction: 1,
                 enlargeCenterPage: true,
                 scrollDirection: Axis.horizontal,
                 onPageChanged: (index, reason) {
@@ -62,35 +62,40 @@ class _HomePageViewState extends State<HomePageView> {
             ),
             Padding(
               padding: const EdgeInsets.all(20),
-              child: GridView.count(
-                padding: const EdgeInsets.all(8),
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                shrinkWrap: true,
-                crossAxisCount: 2,
-                children: [
-                  PhotoItems(
-                    imageDescription: 'Phones',
-                    photoImage: buySmartphone,
-                    navigationFunction: () {},
-                  ),
-                  PhotoItems(
-                    imageDescription: 'Laptops',
-                    photoImage: buyLaptop,
-                    navigationFunction: () {},
-                  ),
-                  PhotoItems(
-                    imageDescription: 'Home Appliances',
-                    photoImage: buyHomeAplliances,
-                    navigationFunction: () {},
-                  ),
-                  PhotoItems(
-                    imageDescription: 'Books',
-                    photoImage: booksMain,
-                    navigationFunction: () =>
-                        Navigator.pushNamed(context, bookListRoute),
-                  ),
-                ],
+              child: SizedBox(
+                height: 355,
+                width: 355,
+                child: GridView.count(
+                  padding: const EdgeInsets.all(8),
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    PhotoItems(
+                      imageDescription: 'Phones',
+                      photoImage: showPhone,
+                      navigationFunction: () {},
+                    ),
+                    PhotoItems(
+                      imageDescription: 'Laptops',
+                      photoImage: showLaptop,
+                      navigationFunction: () {},
+                    ),
+                    PhotoItems(
+                      imageDescription: 'Home Appliances',
+                      photoImage: showAplliances,
+                      navigationFunction: () {},
+                    ),
+                    PhotoItems(
+                      imageDescription: 'Books',
+                      photoImage: showBook,
+                      navigationFunction: () =>
+                          Navigator.pushNamed(context, bookListRoute),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -102,23 +107,19 @@ class _HomePageViewState extends State<HomePageView> {
 
 List<Widget> carouselItems = [
   Image(
-    image: bookOne,
+    image: landscapeBook,
     fit: BoxFit.fill,
   ),
   Image(
-    image: buyBooks,
+    image: landscapeHome,
     fit: BoxFit.fill,
   ),
   Image(
-    image: buyHomeAplliances,
+    image: landscapeLaptop,
     fit: BoxFit.fill,
   ),
   Image(
-    image: buyLaptop,
-    fit: BoxFit.fill,
-  ),
-  Image(
-    image: buySmartphone,
+    image: landscapePhone,
     fit: BoxFit.fill,
   ),
 ];

@@ -14,63 +14,78 @@ class UserLoginTemp extends StatefulWidget {
 
 class _UserLoginTempState extends State<UserLoginTemp> {
   final TextEditingController _loginEmailController = TextEditingController();
-  final TextEditingController _loginPasswordController = TextEditingController();
+  final TextEditingController _loginPasswordController =
+      TextEditingController();
   final FirebaseAuthService _authService = FirebaseAuthService();
+  final GlobalKey<FormState> loginForm = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, homeRoute, (route) => false);
+            },
+            icon: const Icon(Icons.arrow_back)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Center(
-          child: Column(
-            children: [
-              LoginAndRegisterEmailFormField(
-                defineEmailController: _loginEmailController,
-              ),
-              LoginAndRegisterPasswordFormField(
-                passwordController: _loginPasswordController,
-              ),
-              LoginAndRegisterSubmitButton(
-                yourText: 'Login',
-                yourFunction: () async {
-                  User? user = await _authService.logIn(
-                      _loginEmailController.text, _loginPasswordController.text);
+          child: Form(
+            key: loginForm,
+            autovalidateMode: AutovalidateMode.disabled,
+            child: Column(
+              children: [
+                LoginAndRegisterEmailFormField(
+                  defineEmailController: _loginEmailController,
+                ),
+                LoginAndRegisterPasswordFormField(
+                  passwordController: _loginPasswordController,
+                ),
+                LoginAndRegisterSubmitButton(
+                  yourText: 'Login',
+                  yourFunction: () async {
+                    if (loginForm.currentState!.validate()) {
+                      User? user = await _authService.logIn(
+                          _loginEmailController.text,
+                          _loginPasswordController.text);
 
-                  if (user != null) {
-                    user.reload().then(
-                        (value) => Navigator.pushNamed(context, homeRoute));
-                  } else {
-                    user?.reload().then(
-                        (value) => Navigator.pushNamed(context, loginRoute));
-                  }
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 8.0),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "Don't have an Account? ",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      TextSpan(
-                        text: 'Create here',
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.pushNamed(context, registerRoute);
-                          },
-                        style: const TextStyle(color: Colors.deepPurple),
-                      ),
-                    ],
+                      if (user != null) {
+                        user.reload().then(
+                            (value) => Navigator.pushNamedAndRemoveUntil(context, homeRoute,(route) => false,));
+                      } else {
+                        user?.reload().then((value) =>
+                            Navigator.pushNamedAndRemoveUntil(context, loginRoute,(route) => false,));
+                      }
+                    }
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 8.0),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "Don't have an Account? ",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        TextSpan(
+                          text: 'Create here',
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushNamed(context, registerRoute);
+                            },
+                          style: const TextStyle(color: Colors.deepPurple),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../Constants/item_name.dart';
 import '../Constants/routes/routes.dart';
 import '../Constants/shop_item_images.dart';
@@ -23,33 +22,61 @@ class _BookListPageState extends State<BookListPage> {
   }
 }
 
-class BookListItems extends StatefulWidget {
+class BookListItems extends StatelessWidget {
   const BookListItems({super.key});
 
-  @override
-  State<BookListItems> createState() => _BookListItemsState();
-}
-
-class _BookListItemsState extends State<BookListItems> {
   @override
   Widget build(BuildContext context) {
     return ListView(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       children: [
-        SizedBox(
-          height: 75,
-          child: Center(
-            child: ListTile(
-              leading: Image(
-                image: bookOne,
-              ),
-              title: const Text(theGodfather),
-              onTap: () {
-                Navigator.pushNamed(context, theGodfatherBookRoute);
-              },
+        ListItemsBooks(
+          imageString: bookOne,
+          listTitle: theGodfather,
+          routeName: theGodfatherBookRoute,
+        ),
+        ListItemsBooks(
+          imageString: showBook,
+          listTitle: theBook,
+          routeName: theBookRoute,
+        ),
+      ],
+    );
+  }
+}
+
+class ListItemsBooks extends StatelessWidget {
+  final ImageProvider imageString;
+  final String listTitle;
+  final String routeName;
+
+  const ListItemsBooks(
+      {super.key,
+      required this.imageString,
+      required this.listTitle,
+      required this.routeName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          leading: SizedBox(
+            height: 50,
+            width: 50,
+            child: Image(
+              image: imageString,
             ),
           ),
+          title: Text(listTitle),
+          onTap: () {
+            Navigator.pushNamed(context, routeName);
+          },
+        ),
+        const Divider(
+          height: 0,
+          thickness: 2,
         ),
       ],
     );
