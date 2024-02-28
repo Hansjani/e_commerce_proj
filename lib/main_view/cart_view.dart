@@ -2,7 +2,6 @@
 
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
-import 'package:e_commerce_ui_1/cart/cart_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,43 +22,43 @@ class _CartViewState extends State<CartView> {
             Consumer<CartProvider>(
               builder: (context, cartProvider, child) {
                 final cartItems = cartProvider.cartList;
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: cartItems.length,
-                  itemBuilder: (context, index) {
-                    final cartItem = cartItems[index];
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Text(cartItem.cartTitle),
-                          subtitle: Text('INR ${cartItem.itemPrice}'),
-                          leading: SizedBox(
-                            height: 55,
-                            width: 55,
-                            child: Image(
-                              image: cartItem.cartImage,
+                if (cartItems.isEmpty) {
+                  return const SizedBox();
+                } else {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) {
+                      final cartItem = cartItems[index];
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text(cartItem.cartTitle),
+                            subtitle: Text('INR ${cartItem.itemPrice}'),
+                            leading: SizedBox(
+                              height: 55,
+                              width: 55,
+                              child: Image(
+                                image: cartItem.cartImage,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  cartProvider.removeAtIndexInCart(index);
+                                });
+                              },
+                              icon: const Icon(Icons.delete),
                             ),
                           ),
-                          trailing: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                int cartIndex =
-                                    cartProvider.getIndexOfCartItem(cartItem);
-                                print('index $cartIndex');
-                                if (cartIndex != -1) {
-                                  cartProvider.cartList.removeAt(cartIndex);
-                                }
-                                print(CartUtil().isInCart.toString());
-                              });
-                            },
-                            icon: const Icon(Icons.delete),
+                          AddOrRemoveOne(
+                            itemIndex: index,
                           ),
-                        ),
-                        const AddOrRemoveOne(),
-                      ],
-                    );
-                  },
-                );
+                        ],
+                      );
+                    },
+                  );
+                }
               },
             ),
           ],
@@ -67,7 +66,7 @@ class _CartViewState extends State<CartView> {
       ),
       bottomNavigationBar: BottomAppBar(
         child: ElevatedButton(
-          onPressed: (){
+          onPressed: () {
             Navigator.pushNamed(context, billRoute);
           },
           child: const Text('Checkout'),
@@ -77,50 +76,51 @@ class _CartViewState extends State<CartView> {
   }
 }
 
-class AddOrRemoveOne extends StatefulWidget {
-  const AddOrRemoveOne({super.key});
+class AddOrRemoveOne extends StatelessWidget {
+  const AddOrRemoveOne({super.key, required this.itemIndex});
 
-  @override
-  State<AddOrRemoveOne> createState() => _AddOrRemoveOneState();
-}
-
-class _AddOrRemoveOneState extends State<AddOrRemoveOne> {
-
-  int currentNumber = 1;
+  final int itemIndex;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FilledButton(
-          onPressed: () {
-            setState(() {
-              if(currentNumber > 1){
-                currentNumber--;
-              }
-            });
-          },
-          child: const Text('-'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FilledButton(
-            onPressed: () {},
-            child: Text(currentNumber.toString()),
-          ),
-        ),
-        FilledButton(
-          onPressed: () {
-            setState(() {
-              currentNumber++;
-            });
-          },
-          child: const Text('+'),
-        ),
-      ],
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        if (cartProvider.cartList.isEmpty ||
+            itemIndex < 0 ||
+            itemIndex >= cartProvider.cartList.length) {
+          return const SizedBox(); // Return an empty container if cartList is empty or itemIndex is out of range
+        } else {
+          final int itemQuantity = cartProvider.cartList[itemIndex].itemQuantity;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  if (itemQuantity >= 1) {
+                    cartProvider.decreaseItemQuantity(itemIndex);
+                  }
+                },
+                child: const Text('-'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FilledButton(
+                  onPressed: () {},
+                  child: Text(itemQuantity.toString()),
+                ),
+              ),
+              FilledButton(
+                onPressed: () {
+                  cartProvider.increaseItemQuantity(itemIndex);
+                },
+                child: const Text('+'),
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }

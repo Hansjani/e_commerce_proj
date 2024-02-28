@@ -4,11 +4,13 @@ class Cart {
   final String cartTitle;
   final ImageProvider cartImage;
   final int itemPrice;
+  int itemQuantity;
 
   Cart({
     required this.cartTitle,
     required this.cartImage,
     required this.itemPrice,
+    this.itemQuantity = 0,
   });
 }
 
@@ -22,12 +24,50 @@ class CartProvider extends ChangeNotifier {
   }
 
   void addToCart(Cart cart) {
-    _cartList.add(cart);
+    int index = _cartList.indexWhere((item) => item.cartTitle == cart.cartTitle);
+    if(index != -1){
+      _cartList[index].itemQuantity += 1;
+    }else{
+      _cartList.add(cart);
+    }
     notifyListeners();
   }
 
   void removeFromCart(Cart cart) {
-    _cartList.remove(cart);
+    int index = _cartList.indexWhere((item) => item.cartTitle == cart.cartTitle);
+    if(index != -1){
+      if(cartList[index].itemQuantity > 1){
+        _cartList[index].itemQuantity -= 1;
+      } else {
+        _cartList.remove(cart);
+      }
+    }
+    notifyListeners();
+  }
+
+  void removeAtIndexInCart(int index){
+    if(index >= 0 && index < _cartList.length){
+      _cartList.removeAt(index);
+    }
+    notifyListeners();
+  }
+
+  void decreaseItemQuantity(int index) {
+    if (index >= 0 && index < _cartList.length) {
+      _cartList[index].itemQuantity -= 1;
+      notifyListeners();
+    }
+  }
+
+  void increaseItemQuantity(int index) {
+    if (index >= 0 && index < _cartList.length) {
+      _cartList[index].itemQuantity += 1;
+      notifyListeners();
+    }
+  }
+
+  void removeWhereTitle(String cartItemTitle){
+    _cartList.removeWhere((cart) => cart.cartTitle == cartItemTitle);
     notifyListeners();
   }
 

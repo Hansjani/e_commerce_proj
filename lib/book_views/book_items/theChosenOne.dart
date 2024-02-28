@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../Constants/item_name.dart';
 import '../../Constants/shop_item_images.dart';
 import '../../bookmark section/wishlist_toggle.dart';
-import '../../cart/cart_toggle.dart';
 import '../../shop_items_logic/shop_items_logic.dart';
 
 class TheChosenBook extends StatefulWidget {
@@ -21,7 +20,8 @@ class _TheChosenBookState extends State<TheChosenBook> {
     print('Build');
     bool _isInList = Provider.of<WishListProvider>(context, listen: false)
         .containsWishlist(theBook);
-    bool _isInCart = Provider.of<CartProvider>(context).containItemInCart(theBook);
+    bool _isInCart =
+        Provider.of<CartProvider>(context).containItemInCart(theBook);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Item'),
@@ -61,14 +61,15 @@ class _TheChosenBookState extends State<TheChosenBook> {
             ItemBuyAndCart(
               buyFunction: () {},
               cartFunction: () {
-                setState(() {
-                  Provider.of<CartUtil>(context, listen: false).cartItemToggle(
-                    context: context,
-                    cartItemTitle: theBook,
-                    cartImage: showBook,
-                    cartItemPrice: 54,
-                  );
-                });
+                var cartProvider =
+                    Provider.of<CartProvider>(context, listen: false);
+                Cart cartItem = Cart(
+                  cartTitle: theBook,
+                  cartImage: showBook,
+                  itemPrice: 54,
+                );
+                cartProvider.addToCart(cartItem);
+                setState(() {});
               },
               cartIcon: _isInCart
                   ? Icons.remove_shopping_cart

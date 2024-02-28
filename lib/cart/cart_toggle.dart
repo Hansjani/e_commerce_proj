@@ -19,10 +19,10 @@ class CartUtil extends ChangeNotifier {
     _isInCart = cartProvider.containItemInCart(cartItemTitle);
 
     if (_isInCart) {
-      cartProvider.cartList
-          .removeWhere((cart) => cart.cartTitle == cartItemTitle);
+      cartProvider.removeWhereTitle(cartItemTitle);
       print('removed from cart');
       _isInCart = false;
+      notifyListeners();
     } else {
       final Cart cart = Cart(
           cartTitle: cartItemTitle,
@@ -31,6 +31,7 @@ class CartUtil extends ChangeNotifier {
       cartProvider.addToCart(cart);
       print('added to cart');
       _isInCart = true;
+      notifyListeners();
     }
     notifyListeners();
   }

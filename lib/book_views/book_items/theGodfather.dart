@@ -1,6 +1,5 @@
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
-import 'package:e_commerce_ui_1/cart/cart_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Constants/item_name.dart';
@@ -36,7 +35,7 @@ class _TheGodfatherState extends State<TheGodfather> {
             ),
             ItemPriceAndWishlist(
               wishlistIcon: _isInList ? Icons.favorite : Icons.favorite_border,
-              itemPrice: '543 INR',
+              itemPrice: '123 INR',
               wishlistFunction: () {
                 setState(() {
                   Provider.of<WishListUtil>(context, listen: false)
@@ -62,16 +61,17 @@ class _TheGodfatherState extends State<TheGodfather> {
             ItemBuyAndCart(
               buyFunction: () {},
               cartFunction: () {
-                setState(() {
-                  Provider.of<CartUtil>(context, listen: false).cartItemToggle(
-                    context: context,
-                    cartItemTitle: theGodfather,
-                    cartImage: bookOne,
-                    cartItemPrice: 543,
-                  );
-                });
+                var cartProvider =
+                    Provider.of<CartProvider>(context, listen: false);
+                Cart cartItem = Cart(
+                  cartTitle: theGodfather,
+                  cartImage: bookOne,
+                  itemPrice: 123,
+                );
+                cartProvider.addToCart(cartItem);
+                setState(() {});
               },
-              cartIcon: _isInList
+              cartIcon: _isInCart
                   ? Icons.remove_shopping_cart
                   : Icons.add_shopping_cart_rounded,
             ),

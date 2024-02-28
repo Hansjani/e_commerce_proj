@@ -1,8 +1,10 @@
+import 'package:e_commerce_ui_1/cart/cart_provider.dart';
 import 'package:e_commerce_ui_1/main_view/bookmark_view.dart';
 import 'package:e_commerce_ui_1/main_view/cart_view.dart';
 import 'package:e_commerce_ui_1/main_view/home_page.dart';
 import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:developer' as devtools show log;
 import '../Constants/routes/routes.dart';
 
@@ -14,7 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 0;
 
   static const List<Widget> _homeOptions = <Widget>[
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     CartView(),
   ];
 
-  void _changeView(int index){
+  void _changeView(int index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('HomeView Build');
     return Scaffold(
       appBar: AppBar(
         title: const Text('E-Commerce'),
@@ -54,23 +56,20 @@ class _HomePageState extends State<HomePage> {
           size: 35,
         ),
         onTap: _changeView,
-        items:  const <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'home',
           ),
           BottomNavigationBarItem(
             icon: Badge(
-                isLabelVisible: false,
-                child: Icon(Icons.favorite),
+              isLabelVisible: false,
+              child: Icon(Icons.favorite),
             ),
             label: 'Wishlist',
           ),
           BottomNavigationBarItem(
-            icon: Badge(
-              isLabelVisible: false,
-              child: Icon(Icons.shopping_cart),
-            ),
+            icon: BadgeIconForCart(),
             label: 'Cart',
           ),
         ],
@@ -131,3 +130,26 @@ List<PopupMenuEntry> _buildMenuItems(BuildContext context) {
     ),
   ];
 }
+
+class BadgeIconForCart extends StatefulWidget {
+  const BadgeIconForCart({super.key});
+
+  @override
+  State<BadgeIconForCart> createState() => _BadgeIconForCartState();
+}
+
+class _BadgeIconForCartState extends State<BadgeIconForCart> {
+  @override
+  Widget build(BuildContext context) {
+    print('Badge build');
+    return Consumer(builder: (context,CartProvider cartProvider, child) {
+      int cartItems = cartProvider.cartList.length;
+      return Badge(
+        isLabelVisible: cartItems <= 0 ? false : true,
+        label: Text(cartItems.toString()),
+        child: const Icon(Icons.shopping_cart),
+      );
+    },);
+  }
+}
+
