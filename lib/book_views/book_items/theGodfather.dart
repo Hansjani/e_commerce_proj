@@ -1,6 +1,5 @@
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
-import 'package:e_commerce_ui_1/main_view/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Constants/item_name.dart';
