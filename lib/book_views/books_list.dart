@@ -41,6 +41,11 @@ class BookListItems extends StatelessWidget {
           listTitle: theBook,
           routeName: theBookRoute,
         ),
+        ListItemsBooks(
+          imageString: showLaptop,
+          listTitle: testBook,
+          routeName: testBookRoute,
+        ),
       ],
     );
   }

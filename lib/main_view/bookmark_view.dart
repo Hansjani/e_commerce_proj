@@ -1,7 +1,10 @@
+import 'package:e_commerce_ui_1/Constants/item_name.dart';
+import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bookmark section/wishlist_manager.dart';
+import 'dart:developer' as devtools show log;
 
 class BookmarkView extends StatefulWidget {
   const BookmarkView({super.key});
@@ -39,15 +42,22 @@ class _BookmarkViewState extends State<BookmarkView> {
                   setState(() {
                     int indexToRemove =
                         bookmarkProvider.getIndexOfBookmark(bookmark);
-                    print('index $indexToRemove');
+                    devtools.log('index $indexToRemove');
                     if (indexToRemove != -1) {
                       bookmarkProvider.wishlist.removeAt(indexToRemove);
                     }
-                    print(bookMarkUtil.isContained.toString());
+                    devtools.log(bookMarkUtil.isContained.toString());
                   });
                 },
                 icon: const Icon(Icons.delete),
               ),
+              onTap: () {
+                if(bookmark.title == theGodfather){
+                  Navigator.pushNamed(context, theGodfatherBookRoute);
+                } else if (bookmark.title == theBook){
+                  Navigator.pushNamed(context, theBookRoute);
+                }
+              },
             );
           },
         );

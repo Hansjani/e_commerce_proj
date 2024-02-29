@@ -7,3 +7,5 @@ const settingsRoute = '/settings_page/';
 const theBookRoute = '/the_book/';
 const billRoute = '/bill_page/';
 const profileRoute = '/profile_page/';
+const testBookRoute = '/test_book/';
+const updateRoute = '/update_user/';

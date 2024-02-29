@@ -2,7 +2,6 @@ import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
-
 import '../Constants/routes/routes.dart';
 import '../user_logics/login_logic.dart';
 
@@ -30,7 +29,6 @@ class UserRegisterTemp extends StatefulWidget {
 class _UserRegisterTempState extends State<UserRegisterTemp> {
   final TextEditingController _registerEmailController =
       TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -50,9 +48,6 @@ class _UserRegisterTempState extends State<UserRegisterTemp> {
               LoginAndRegisterEmailFormField(
                 defineEmailController: _registerEmailController,
               ),
-              LoginAndRegisterPhoneFormField(
-                definePhoneController: _phoneNumberController,
-              ),
               RegisterPasswordAndConfirmPasswordFormField(
                 passwordController: _passwordController,
                 confirmPasswordController: _confirmPasswordController,
@@ -61,18 +56,31 @@ class _UserRegisterTempState extends State<UserRegisterTemp> {
                 yourText: 'register',
                 yourFunction: () async {
                   if (registerForm.currentState!.validate()) {
-                    User? user = await _authService.logUp(
-                      _registerEmailController.text,
-                      _confirmPasswordController.text,
-                    );
+                    final String email = _registerEmailController.text.trim();
+                    final String password =
+                        _confirmPasswordController.text.trim();
+
+                    await _authService.logUp(email, password);
+
+                    User? user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
                       devtools.log(user.toString());
-                      user.reload().then(
-                          (value) => Navigator.pushNamedAndRemoveUntil(context, homeRoute,(route) => false,));
+                      user
+                          .reload()
+                          .then((value) => Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                homeRoute,
+                                (route) => false,
+                              ));
                     } else {
                       devtools.log('retry');
-                      user?.reload().then(
-                          (value) => Navigator.pushNamedAndRemoveUntil(context, loginRoute,(route) => false,));
+                      user
+                          ?.reload()
+                          .then((value) => Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                loginRoute,
+                                (route) => false,
+                              ));
                     }
                   }
                 },

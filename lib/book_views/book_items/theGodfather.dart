@@ -1,11 +1,13 @@
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
+import 'package:e_commerce_ui_1/main_view/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../Constants/item_name.dart';
 import '../../Constants/shop_item_images.dart';
 import '../../bookmark section/wishlist_toggle.dart';
 import '../../shop_items_logic/shop_items_logic.dart';
+import 'dart:developer' as devtools show log;
 
 class TheGodfather extends StatefulWidget {
   const TheGodfather({super.key});
@@ -17,11 +19,12 @@ class TheGodfather extends StatefulWidget {
 class _TheGodfatherState extends State<TheGodfather> {
   @override
   Widget build(BuildContext context) {
-    print('Build');
-    bool _isInList = Provider.of<WishListProvider>(context, listen: false)
+    devtools.log('Build');
+    bool isInList = Provider.of<WishListProvider>(context, listen: false)
         .containsWishlist(theGodfather);
-    bool _isInCart = Provider.of<CartProvider>(context, listen: false)
+    bool isInCart = Provider.of<CartProvider>(context, listen: false)
         .containItemInCart(theGodfather);
+    int cartIndex = Provider.of<CartProvider>(context,listen: false).cartList.indexWhere((item) => item.cartTitle == theGodfather);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Item'),
@@ -34,7 +37,7 @@ class _TheGodfatherState extends State<TheGodfather> {
               itemName: theGodfather,
             ),
             ItemPriceAndWishlist(
-              wishlistIcon: _isInList ? Icons.favorite : Icons.favorite_border,
+              wishlistIcon: isInList ? Icons.favorite : Icons.favorite_border,
               itemPrice: '123 INR',
               wishlistFunction: () {
                 setState(() {
@@ -58,8 +61,7 @@ class _TheGodfatherState extends State<TheGodfather> {
                     "The first in a series of novels, "
                     "The Godfather is noteworthy for introducing Italian words like consigliere, caporegime, Cosa Nostra, and omertà to an English-speaking audience. "
                     "It inspired a 1972 film of the same name. Two film sequels, including new contributions by Puzo himself, were made in 1974 and 1990."),
-            ItemBuyAndCart(
-              buyFunction: () {},
+            ItemCart(
               cartFunction: () {
                 var cartProvider =
                     Provider.of<CartProvider>(context, listen: false);
@@ -71,9 +73,12 @@ class _TheGodfatherState extends State<TheGodfather> {
                 cartProvider.addToCart(cartItem);
                 setState(() {});
               },
-              cartIcon: _isInCart
+              cartIcon: isInCart
                   ? Icons.remove_shopping_cart
-                  : Icons.add_shopping_cart_rounded,
+                  : Icons.add_shopping_cart_rounded, itemIndex: cartIndex,
+            ),
+            ItemBuy(
+              buyFunction: () {},
             ),
           ],
         ),

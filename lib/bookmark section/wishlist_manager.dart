@@ -9,7 +9,7 @@ class WishList {
 }
 
 class WishListProvider extends ChangeNotifier {
-  List<WishList> _wishlists = [];
+  final List<WishList> _wishlists = [];
 
   List<WishList> get wishlist => _wishlists;
 

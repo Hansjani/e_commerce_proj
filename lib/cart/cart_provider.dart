@@ -10,12 +10,12 @@ class Cart {
     required this.cartTitle,
     required this.cartImage,
     required this.itemPrice,
-    this.itemQuantity = 0,
+    this.itemQuantity = 1,
   });
 }
 
 class CartProvider extends ChangeNotifier {
-  List<Cart> _cartList = [];
+  final List<Cart> _cartList = [];
 
   List<Cart> get cartList => _cartList;
 

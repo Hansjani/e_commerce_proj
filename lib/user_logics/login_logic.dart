@@ -63,6 +63,41 @@ class _LoginAndRegisterPasswordFormFieldState
   }
 }
 
+class RegisterUserName extends StatefulWidget {
+  final TextEditingController _defineUserNameController;
+
+  const RegisterUserName({super.key,required TextEditingController userNameController}) : _defineUserNameController = userNameController;
+
+  @override
+  State<RegisterUserName> createState() => _RegisterUserNameState();
+}
+
+class _RegisterUserNameState extends State<RegisterUserName> {
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        hintText: 'Username',
+        prefixIcon: const Icon(Icons.person),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter username';
+        }
+        return null;
+      },
+      controller: widget._defineUserNameController,
+      autocorrect: true,
+      keyboardType: TextInputType.emailAddress,
+    );
+  }
+}
+
+
 class RegisterPasswordAndConfirmPasswordFormField extends StatefulWidget {
   final TextEditingController _passwordController;
   final TextEditingController _confirmPasswordController;

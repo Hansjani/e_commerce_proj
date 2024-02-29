@@ -1,8 +1,7 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'wishlist_manager.dart';
+import 'dart:developer' as devtools show log;
 
 class WishListUtil extends ChangeNotifier {
   bool _isContains = false;
@@ -19,7 +18,7 @@ class WishListUtil extends ChangeNotifier {
     if (_isContains) {
       wishlistProvider.wishlist
           .removeWhere((wishlist) => wishlist.title == wishlistString);
-      print('removed wish');
+      devtools.log('removed wish');
       _isContains = false;
     } else {
       final WishList wishlist = WishList(
@@ -27,7 +26,7 @@ class WishListUtil extends ChangeNotifier {
         wishlistImage: wishlistImage,
       );
       wishlistProvider.addBookmark(wishlist);
-      print('added wish');
+      devtools.log('added wish');
       _isContains = true;
     }
     notifyListeners();
@@ -38,9 +37,9 @@ class WishListUtil extends ChangeNotifier {
   void available() {
     bool isAvailable = _isContains;
     if (isAvailable) {
-      print('Inside');
+      devtools.log('Inside');
     } else {
-      print('Outside');
+      devtools.log('Outside');
     }
     notifyListeners();
   }

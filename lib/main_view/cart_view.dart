@@ -1,9 +1,9 @@
-// ignore_for_file: avoid_print
-
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../Constants/item_name.dart';
 
 class CartView extends StatefulWidget {
   const CartView({super.key});
@@ -50,6 +50,13 @@ class _CartViewState extends State<CartView> {
                               },
                               icon: const Icon(Icons.delete),
                             ),
+                            onTap:  () {
+                              if(cartItem.cartTitle == theGodfather){
+                                Navigator.pushNamed(context, theGodfatherBookRoute);
+                              } else if (cartItem.cartTitle == theBook){
+                                Navigator.pushNamed(context, theBookRoute);
+                              }
+                            },
                           ),
                           AddOrRemoveOne(
                             itemIndex: index,
@@ -88,7 +95,28 @@ class AddOrRemoveOne extends StatelessWidget {
         if (cartProvider.cartList.isEmpty ||
             itemIndex < 0 ||
             itemIndex >= cartProvider.cartList.length) {
-          return const SizedBox(); // Return an empty container if cartList is empty or itemIndex is out of range
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {},
+                child: const Text('-'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FilledButton(
+                  onPressed: () {},
+                  child: const Text('0'),
+                ),
+              ),
+              FilledButton(
+                onPressed: () {},
+                child: const Text('+'),
+              ),
+            ],
+          );
         } else {
           final int itemQuantity = cartProvider.cartList[itemIndex].itemQuantity;
           return Row(

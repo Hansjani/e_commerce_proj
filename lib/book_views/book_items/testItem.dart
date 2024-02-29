@@ -1,29 +1,38 @@
-import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
-import 'package:e_commerce_ui_1/cart/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer' as devtools show log;
 import '../../Constants/item_name.dart';
 import '../../Constants/shop_item_images.dart';
+import '../../bookmark section/wishlist_manager.dart';
 import '../../bookmark section/wishlist_toggle.dart';
+import '../../cart/cart_provider.dart';
 import '../../shop_items_logic/shop_items_logic.dart';
-import 'dart:developer' as devtools show log;
 
-class TheChosenBook extends StatefulWidget {
-  const TheChosenBook({super.key});
+class TestBook extends StatefulWidget {
+  const TestBook({Key? key}) : super(key: key);
 
   @override
-  State<TheChosenBook> createState() => _TheChosenBookState();
+  State<TestBook> createState() => _TestBookState();
 }
 
-class _TheChosenBookState extends State<TheChosenBook> {
+class _TestBookState extends State<TestBook> {
   @override
   Widget build(BuildContext context) {
     devtools.log('Build');
     bool isInList = Provider.of<WishListProvider>(context, listen: false)
-        .containsWishlist(theBook);
+        .containsWishlist(testBook);
     bool isInCart =
-        Provider.of<CartProvider>(context).containItemInCart(theBook);
-    int cartIndex = Provider.of<CartProvider>(context,listen: false).cartList.indexWhere((item) => item.cartTitle == theBook);
+        Provider.of<CartProvider>(context).containItemInCart(testBook);
+    CartProvider cartProvider =
+        Provider.of<CartProvider>(context, listen: false);
+    Cart? cartItem = isInCart
+        ? cartProvider.cartList
+            .firstWhere((item) => item.cartTitle == testBook)
+        : null;
+    int cartIndex =
+        cartItem != null ? cartProvider.getIndexOfCartItem(cartItem) : -1;
+    int itemQuantity = cartItem?.itemQuantity ?? 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Item'),
@@ -31,9 +40,9 @@ class _TheChosenBookState extends State<TheChosenBook> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ItemImage(itemImage: showBook),
+            ItemImage(itemImage: showLaptop),
             const ItemName(
-              itemName: theBook,
+              itemName: testBook,
             ),
             ItemPriceAndWishlist(
               wishlistIcon: isInList ? Icons.favorite : Icons.favorite_border,
@@ -43,8 +52,8 @@ class _TheChosenBookState extends State<TheChosenBook> {
                   Provider.of<WishListUtil>(context, listen: false)
                       .wishlistToggle(
                     context: context,
-                    wishlistString: theBook,
-                    wishlistImage: showBook,
+                    wishlistString: testBook,
+                    wishlistImage: showLaptop,
                   );
                 });
                 Provider.of<WishListUtil>(context, listen: false).available();
@@ -62,19 +71,28 @@ class _TheChosenBookState extends State<TheChosenBook> {
                     "It inspired a 1972 film of the same name. Two film sequels, including new contributions by Puzo himself, were made in 1974 and 1990."),
             ItemCart(
               cartFunction: () {
-                var cartProvider =
-                    Provider.of<CartProvider>(context, listen: false);
-                Cart cartItem = Cart(
-                  cartTitle: theBook,
-                  cartImage: showBook,
-                  itemPrice: 54,
-                );
-                cartProvider.addToCart(cartItem);
-                setState(() {});
+                if (isInCart) {
+                  // Do something when the item is already in the cart
+                  print('Item is already in the cart');
+                  // Access item quantity directly
+                  print('Item quantity in cart: $itemQuantity');
+                } else {
+                  // Do something when the item is not in the cart
+                  var cartProvider =
+                      Provider.of<CartProvider>(context, listen: false);
+                  Cart cartItem = Cart(
+                    cartTitle: testBook,
+                    cartImage: showLaptop,
+                    itemPrice: 54,
+                  );
+                  cartProvider.addToCart(cartItem);
+                  setState(() {});
+                }
               },
               cartIcon: isInCart
                   ? Icons.remove_shopping_cart
-                  : Icons.add_shopping_cart_rounded, itemIndex: cartIndex,
+                  : Icons.add_shopping_cart_rounded,
+              itemIndex: cartIndex,
             ),
             ItemBuy(
               buyFunction: () {},

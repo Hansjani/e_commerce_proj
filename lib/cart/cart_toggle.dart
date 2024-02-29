@@ -1,9 +1,8 @@
-// ignore_for_file: avoid_print
-
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer' as devtools show log;
 
 class CartUtil extends ChangeNotifier {
   bool _isInCart = false;
@@ -20,7 +19,7 @@ class CartUtil extends ChangeNotifier {
 
     if (_isInCart) {
       cartProvider.removeWhereTitle(cartItemTitle);
-      print('removed from cart');
+      devtools.log('removed from cart');
       _isInCart = false;
       notifyListeners();
     } else {
@@ -29,7 +28,7 @@ class CartUtil extends ChangeNotifier {
           cartImage: cartImage,
           itemPrice: cartItemPrice);
       cartProvider.addToCart(cart);
-      print('added to cart');
+      devtools.log('added to cart');
       _isInCart = true;
       notifyListeners();
     }
@@ -41,9 +40,9 @@ class CartUtil extends ChangeNotifier {
   void cartItem() {
     bool isCartItem = _isInCart;
     if (isCartItem) {
-      print('Cart Item');
+      devtools.log('Cart Item');
     } else {
-      print('Not a cart item');
+      devtools.log('Not a cart item');
     }
   }
 }

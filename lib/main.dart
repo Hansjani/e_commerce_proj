@@ -1,4 +1,5 @@
 import 'package:e_commerce_ui_1/Theme/theme_provider.dart';
+import 'package:e_commerce_ui_1/book_views/book_items/testItem.dart';
 import 'package:e_commerce_ui_1/book_views/book_items/theGodfather.dart';
 import 'package:e_commerce_ui_1/book_views/book_items/theChosenOne.dart';
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
@@ -12,6 +13,7 @@ import 'package:e_commerce_ui_1/main_view/profile.dart';
 import 'package:e_commerce_ui_1/main_view/settings_view.dart';
 import 'package:e_commerce_ui_1/temp_user_login/user_login.dart';
 import 'package:e_commerce_ui_1/temp_user_login/user_register.dart';
+import 'package:e_commerce_ui_1/temp_user_login/user_update.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +57,8 @@ class MainApp extends StatelessWidget {
               theGodfatherBookRoute: (context) => const TheGodfather(),
               billRoute: (context) => const BillView(),
               profileRoute: (context) => const ProfileView(),
+              testBookRoute: (context) => const TestBook(),
+              updateRoute:(context) => const UserUpdate(),
             },
             theme: ThemeData(
               brightness: Brightness.light,

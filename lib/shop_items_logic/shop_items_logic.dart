@@ -1,7 +1,7 @@
-// ignore_for_file: avoid_print
-
+import 'package:e_commerce_ui_1/main_view/cart_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 class ItemImage extends StatelessWidget {
   const ItemImage({super.key, required this.itemImage});
@@ -71,7 +71,7 @@ class _ItemPriceAndWishlistState extends State<ItemPriceAndWishlist> {
 
   @override
   Widget build(BuildContext context) {
-    print('build : $number');
+    devtools.log('build : $number');
     return Row(
       children: [
         Expanded(
@@ -91,10 +91,14 @@ class _ItemPriceAndWishlistState extends State<ItemPriceAndWishlist> {
               children: [
                 TextSpan(
                   text: '+      ',
-                  recognizer: TapGestureRecognizer()..onTap = () {
-                    add();
-                  },
-                  style: const TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      add();
+                    },
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text: number.toString(),
@@ -102,10 +106,14 @@ class _ItemPriceAndWishlistState extends State<ItemPriceAndWishlist> {
                 ),
                 TextSpan(
                   text: '      -',
-                  recognizer: TapGestureRecognizer()..onTap = () {
-                    minus();
-                  },
-                  style: const TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      minus();
+                    },
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -144,38 +152,55 @@ class ItemDescription extends StatelessWidget {
   }
 }
 
-class ItemBuyAndCart extends StatelessWidget {
+class ItemCart extends StatelessWidget {
+  const ItemCart({
+    super.key,
+    required this.cartFunction,
+    required this.cartIcon,
+    required this.itemIndex,
+  });
 
-  const ItemBuyAndCart(
-      {super.key, required this.buyFunction, required this.cartFunction, required this.cartIcon});
-
-  final VoidCallback buyFunction;
   final VoidCallback cartFunction;
   final IconData cartIcon;
+  final int itemIndex;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Expanded(
-          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: IconButton.filled(
+                onPressed: cartFunction, icon: Icon(cartIcon)),
+          ),
+        ),
+        AddOrRemoveOne(itemIndex: itemIndex),
+      ],
+    );
+  }
+}
+
+class ItemBuy extends StatelessWidget {
+  const ItemBuy({
+    super.key,
+    required this.buyFunction,
+  });
+
+  final VoidCallback buyFunction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: FilledButton(
               onPressed: buyFunction,
               child: const Text('Buy'),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: IconButton.filled(
-              onPressed: cartFunction,
-              icon: Icon(cartIcon)
             ),
           ),
         ),

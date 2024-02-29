@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('HomeView Build');
+    devtools.log('HomeView Build');
     return Scaffold(
       appBar: AppBar(
         title: const Text('E-Commerce'),
@@ -81,54 +81,80 @@ class _HomePageState extends State<HomePage> {
 final FirebaseAuthService authService = FirebaseAuthService();
 
 List<PopupMenuEntry> _buildMenuItems(BuildContext context) {
-  return <PopupMenuEntry>[
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.person),
-        title: const Text('Profile'),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.pushNamed(context, profileRoute);
-        },
-      ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.login),
-        title: const Text('Sign in'),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.pushNamed(context, loginRoute);
-        },
-      ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.logout),
-        title: const Text(
-          'Sign out',
+  final user = authService.authentication.currentUser;
+  if(user != null){
+    return <PopupMenuEntry>[
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.person),
+          title: const Text('Profile'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, profileRoute);
+          },
         ),
-        onTap: () async {
-          Navigator.pop(context);
-          await authService.logOut().then(
-            (value) {
-              devtools.log(authService.authentication.currentUser.toString());
-            },
-          );
-        },
       ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.settings),
-        title: const Text('Settings'),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.pushNamed(context, settingsRoute);
-        },
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.logout),
+          title: const Text(
+            'Sign out',
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+            await authService.logOut().then(
+                  (value) {
+                devtools.log(authService.authentication.currentUser.toString());
+              },
+            );
+          },
+        ),
       ),
-    ),
-  ];
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text('Settings'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, settingsRoute);
+          },
+        ),
+      ),
+    ];
+  }else{
+    return <PopupMenuEntry>[
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.person),
+          title: const Text('Profile'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, profileRoute);
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.login),
+          title: const Text('Sign in'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, loginRoute);
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.settings),
+          title: const Text('Settings'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, settingsRoute);
+          },
+        ),
+      ),
+    ];
+  }
 }
 
 class BadgeIconForCart extends StatefulWidget {
@@ -141,7 +167,7 @@ class BadgeIconForCart extends StatefulWidget {
 class _BadgeIconForCartState extends State<BadgeIconForCart> {
   @override
   Widget build(BuildContext context) {
-    print('Badge build');
+    devtools.log('Badge build');
     return Consumer(builder: (context,CartProvider cartProvider, child) {
       int cartItems = cartProvider.cartList.length;
       return Badge(
