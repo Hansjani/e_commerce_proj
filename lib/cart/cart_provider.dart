@@ -66,6 +66,17 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  void setItemQuantity(Cart cart, int itemQuantity) {
+    int index = _cartList.indexWhere((item) => item.cartTitle == cart.cartTitle);
+    if(index != -1){
+      _cartList[index].itemQuantity = itemQuantity;
+    }else{
+      cart.itemQuantity = itemQuantity;
+      _cartList.add(cart);
+    }
+    notifyListeners();
+  }
+
   void removeWhereTitle(String cartItemTitle){
     _cartList.removeWhere((cart) => cart.cartTitle == cartItemTitle);
     notifyListeners();

@@ -8,22 +8,24 @@ import '../../bookmark section/wishlist_toggle.dart';
 import '../../shop_items_logic/shop_items_logic.dart';
 import 'dart:developer' as devtools show log;
 
-class TheChosenBook extends StatefulWidget {
-  const TheChosenBook({super.key});
+class TheGodfather extends StatefulWidget {
+  const TheGodfather({super.key});
 
   @override
-  State<TheChosenBook> createState() => _TheChosenBookState();
+  State<TheGodfather> createState() => _TheGodfatherState();
 }
 
-class _TheChosenBookState extends State<TheChosenBook> {
+int _itemQuantity = 0;
+
+class _TheGodfatherState extends State<TheGodfather> {
   @override
   Widget build(BuildContext context) {
     devtools.log('Build');
     bool isInList = Provider.of<WishListProvider>(context, listen: false)
-        .containsWishlist(theBook);
-    bool isInCart =
-        Provider.of<CartProvider>(context).containItemInCart(theBook);
-    int cartIndex = Provider.of<CartProvider>(context,listen: false).cartList.indexWhere((item) => item.cartTitle == theBook);
+        .containsWishlist(theGodfather);
+    bool isInCart = Provider.of<CartProvider>(context, listen: false)
+        .containItemInCart(theGodfather);
+    int cartIndex = Provider.of<CartProvider>(context,listen: false).cartList.indexWhere((item) => item.cartTitle == theGodfather);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Item'),
@@ -31,20 +33,20 @@ class _TheChosenBookState extends State<TheChosenBook> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ItemImage(itemImage: showBook),
+            ItemImage(itemImage: bookOne),
             const ItemName(
-              itemName: theBook,
+              itemName: theGodfather,
             ),
             ItemPriceAndWishlist(
               wishlistIcon: isInList ? Icons.favorite : Icons.favorite_border,
-              itemPrice: '54 INR',
+              itemPrice: '123 INR',
               wishlistFunction: () {
                 setState(() {
                   Provider.of<WishListUtil>(context, listen: false)
                       .wishlistToggle(
                     context: context,
-                    wishlistString: theBook,
-                    wishlistImage: showBook,
+                    wishlistString: theGodfather,
+                    wishlistImage: bookOne,
                   );
                 });
                 Provider.of<WishListUtil>(context, listen: false).available();
@@ -65,9 +67,9 @@ class _TheChosenBookState extends State<TheChosenBook> {
                 var cartProvider =
                     Provider.of<CartProvider>(context, listen: false);
                 Cart cartItem = Cart(
-                  cartTitle: theBook,
-                  cartImage: showBook,
-                  itemPrice: 54,
+                  cartTitle: theGodfather,
+                  cartImage: bookOne,
+                  itemPrice: 123,
                 );
                 cartProvider.addToCart(cartItem);
                 setState(() {});
@@ -75,10 +77,19 @@ class _TheChosenBookState extends State<TheChosenBook> {
               cartIcon: isInCart
                   ? Icons.remove_shopping_cart
                   : Icons.add_shopping_cart_rounded, itemIndex: cartIndex,
+              itemQuantity: _itemQuantity,
+              itemMinus: () {
+                _itemQuantity--;
+                setState(() {});
+              },
+              itemPlus: () {
+                _itemQuantity++;
+                setState(() {});
+              },
             ),
             ItemBuy(
               buyFunction: () {},
-            )
+            ),
           ],
         ),
       ),

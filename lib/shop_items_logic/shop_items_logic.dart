@@ -1,7 +1,6 @@
-import 'package:e_commerce_ui_1/main_view/cart_view.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
+import 'package:provider/provider.dart';
+import '../cart/cart_provider.dart';
 
 class ItemImage extends StatelessWidget {
   const ItemImage({super.key, required this.itemImage});
@@ -27,15 +26,31 @@ class ItemName extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        itemName,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const Text(
+            'Item Name',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            itemName,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class ItemPriceAndWishlist extends StatefulWidget {
+class ItemPriceAndWishlist extends StatelessWidget {
   final String itemPrice;
   final VoidCallback wishlistFunction;
   final IconData wishlistIcon;
@@ -47,84 +62,31 @@ class ItemPriceAndWishlist extends StatefulWidget {
       required this.wishlistIcon});
 
   @override
-  State<ItemPriceAndWishlist> createState() => _ItemPriceAndWishlistState();
-}
-
-class _ItemPriceAndWishlistState extends State<ItemPriceAndWishlist> {
-  int number = 0;
-
-  void add() {
-    setState(() {
-      number = number + 1;
-    });
-  }
-
-  void minus() {
-    setState(() {
-      if (number >= 1) {
-        number = number - 1;
-      } else {
-        number = 0;
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    devtools.log('build : $number');
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          flex: 2,
-          child: Center(
-            child: Text(
-              widget.itemPrice,
-              maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: Text(
+                  itemPrice,
+                  maxLines: 1,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '+      ',
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      add();
-                    },
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: IconButton(
+                  onPressed: wishlistFunction,
+                  icon: Icon(wishlistIcon),
                 ),
-                TextSpan(
-                  text: number.toString(),
-                  style: const TextStyle(color: Colors.black),
-                ),
-                TextSpan(
-                  text: '      -',
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      minus();
-                    },
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: IconButton(
-            onPressed: widget.wishlistFunction,
-            icon: Icon(widget.wishlistIcon),
-          ),
+          ],
         ),
       ],
     );
@@ -140,10 +102,21 @@ class ItemDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Description',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
           child: Text(
             itemDescription,
+            style: TextStyle(color: Colors.grey.shade600),
             softWrap: true,
           ),
         )
@@ -158,11 +131,17 @@ class ItemCart extends StatelessWidget {
     required this.cartFunction,
     required this.cartIcon,
     required this.itemIndex,
+    required this.itemQuantity,
+    required this.itemMinus,
+    required this.itemPlus,
   });
 
   final VoidCallback cartFunction;
   final IconData cartIcon;
   final int itemIndex;
+  final int itemQuantity;
+  final VoidCallback itemMinus;
+  final VoidCallback itemPlus;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +156,12 @@ class ItemCart extends StatelessWidget {
                 onPressed: cartFunction, icon: Icon(cartIcon)),
           ),
         ),
-        AddOrRemoveOne(itemIndex: itemIndex),
+        AddOrRemoveItem(
+          itemIndex: itemIndex,
+          itemQuantity: itemQuantity,
+          itemMinus: itemMinus,
+          itemPlus: itemPlus,
+        )
       ],
     );
   }
@@ -205,6 +189,86 @@ class ItemBuy extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class AddOrRemoveItem extends StatelessWidget {
+  const AddOrRemoveItem({
+    super.key,
+    required this.itemIndex,
+    required this.itemQuantity,
+    required this.itemMinus,
+    required this.itemPlus,
+  });
+
+  final int itemIndex;
+  final int itemQuantity;
+  final VoidCallback itemMinus;
+  final VoidCallback itemPlus;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        if (cartProvider.cartList.isEmpty ||
+            itemIndex < 0 ||
+            itemIndex >= cartProvider.cartList.length) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: itemMinus,
+                child: const Text('-'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FilledButton(
+                  onPressed: () {},
+                  child: Text(itemQuantity.toString()),
+                ),
+              ),
+              FilledButton(
+                onPressed: itemPlus,
+                child: const Text('+'),
+              ),
+            ],
+          );
+        } else {
+          final int itemQuantity =
+              cartProvider.cartList[itemIndex].itemQuantity;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  if (itemQuantity >= 1) {
+                    cartProvider.decreaseItemQuantity(itemIndex);
+                  }
+                },
+                child: const Text('-'),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FilledButton(
+                  onPressed: () {},
+                  child: Text(itemQuantity.toString()),
+                ),
+              ),
+              FilledButton(
+                onPressed: () {
+                  cartProvider.increaseItemQuantity(itemIndex);
+                },
+                child: const Text('+'),
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }

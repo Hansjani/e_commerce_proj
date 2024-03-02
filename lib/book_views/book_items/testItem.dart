@@ -15,6 +15,8 @@ class TestBook extends StatefulWidget {
   State<TestBook> createState() => _TestBookState();
 }
 
+int _itemQuantityTwo = 0;
+
 class _TestBookState extends State<TestBook> {
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class _TestBookState extends State<TestBook> {
     int cartIndex =
         cartItem != null ? cartProvider.getIndexOfCartItem(cartItem) : -1;
     int itemQuantity = cartItem?.itemQuantity ?? 0;
-
+    devtools.log(_itemQuantityTwo.toString());
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Item'),
@@ -46,7 +48,7 @@ class _TestBookState extends State<TestBook> {
             ),
             ItemPriceAndWishlist(
               wishlistIcon: isInList ? Icons.favorite : Icons.favorite_border,
-              itemPrice: '54 INR',
+              itemPrice: '1234 INR',
               wishlistFunction: () {
                 setState(() {
                   Provider.of<WishListUtil>(context, listen: false)
@@ -72,20 +74,18 @@ class _TestBookState extends State<TestBook> {
             ItemCart(
               cartFunction: () {
                 if (isInCart) {
-                  // Do something when the item is already in the cart
+                  cartProvider.removeAtIndexInCart(cartIndex);
                   print('Item is already in the cart');
-                  // Access item quantity directly
                   print('Item quantity in cart: $itemQuantity');
                 } else {
-                  // Do something when the item is not in the cart
                   var cartProvider =
                       Provider.of<CartProvider>(context, listen: false);
                   Cart cartItem = Cart(
                     cartTitle: testBook,
                     cartImage: showLaptop,
-                    itemPrice: 54,
+                    itemPrice: 1234,
                   );
-                  cartProvider.addToCart(cartItem);
+                  cartProvider.setItemQuantity(cartItem, _itemQuantityTwo);
                   setState(() {});
                 }
               },
@@ -93,6 +93,17 @@ class _TestBookState extends State<TestBook> {
                   ? Icons.remove_shopping_cart
                   : Icons.add_shopping_cart_rounded,
               itemIndex: cartIndex,
+              itemQuantity: _itemQuantityTwo,
+              itemMinus: () {
+                setState(() {
+                  _itemQuantityTwo -= 1;
+                });
+              },
+              itemPlus: () {
+                setState(() {
+                  _itemQuantityTwo += 1;
+                });
+              },
             ),
             ItemBuy(
               buyFunction: () {},

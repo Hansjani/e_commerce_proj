@@ -1,7 +1,7 @@
 import 'package:e_commerce_ui_1/Theme/theme_provider.dart';
 import 'package:e_commerce_ui_1/book_views/book_items/testItem.dart';
-import 'package:e_commerce_ui_1/book_views/book_items/theGodfather.dart';
-import 'package:e_commerce_ui_1/book_views/book_items/theChosenOne.dart';
+import 'package:e_commerce_ui_1/book_views/book_items/thegodfather.dart';
+import 'package:e_commerce_ui_1/book_views/book_items/thechosenone.dart';
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_manager.dart';
 import 'package:e_commerce_ui_1/bookmark%20section/wishlist_toggle.dart';
 import 'package:e_commerce_ui_1/cart/cart_provider.dart';

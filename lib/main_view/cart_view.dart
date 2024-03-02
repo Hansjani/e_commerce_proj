@@ -55,6 +55,8 @@ class _CartViewState extends State<CartView> {
                                 Navigator.pushNamed(context, theGodfatherBookRoute);
                               } else if (cartItem.cartTitle == theBook){
                                 Navigator.pushNamed(context, theBookRoute);
+                              } else if (cartItem.cartTitle == testBook){
+                                Navigator.pushNamed(context, testBookRoute);
                               }
                             },
                           ),
@@ -83,42 +85,59 @@ class _CartViewState extends State<CartView> {
   }
 }
 
-class AddOrRemoveOne extends StatelessWidget {
+class AddOrRemoveOne extends StatefulWidget {
   const AddOrRemoveOne({super.key, required this.itemIndex});
 
   final int itemIndex;
+
+  @override
+  State<AddOrRemoveOne> createState() => _AddOrRemoveOneState();
+}
+
+class _AddOrRemoveOneState extends State<AddOrRemoveOne> {
+ static int itemQuantity = 0;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
         if (cartProvider.cartList.isEmpty ||
-            itemIndex < 0 ||
-            itemIndex >= cartProvider.cartList.length) {
+            widget.itemIndex < 0 ||
+            widget.itemIndex >= cartProvider.cartList.length) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FilledButton(
-                onPressed: () {},
+                onPressed: () {
+                  if(itemQuantity >0){
+                    itemQuantity--;
+                  }else{
+                    itemQuantity = 0;
+                  }
+                  setState(() {});
+                },
                 child: const Text('-'),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FilledButton(
                   onPressed: () {},
-                  child: const Text('0'),
+                  child: Text(itemQuantity.toString()),
                 ),
               ),
               FilledButton(
-                onPressed: () {},
+                onPressed: () {
+                  itemQuantity++;
+                  setState(() {});
+                },
                 child: const Text('+'),
               ),
             ],
           );
         } else {
-          final int itemQuantity = cartProvider.cartList[itemIndex].itemQuantity;
+          final int itemQuantity = cartProvider.cartList[widget.itemIndex].itemQuantity;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -127,7 +146,7 @@ class AddOrRemoveOne extends StatelessWidget {
               FilledButton(
                 onPressed: () {
                   if (itemQuantity >= 1) {
-                    cartProvider.decreaseItemQuantity(itemIndex);
+                    cartProvider.decreaseItemQuantity(widget.itemIndex);
                   }
                 },
                 child: const Text('-'),
@@ -141,7 +160,7 @@ class AddOrRemoveOne extends StatelessWidget {
               ),
               FilledButton(
                 onPressed: () {
-                  cartProvider.increaseItemQuantity(itemIndex);
+                  cartProvider.increaseItemQuantity(widget.itemIndex);
                 },
                 child: const Text('+'),
               ),
