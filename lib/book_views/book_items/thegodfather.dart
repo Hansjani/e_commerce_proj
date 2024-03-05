@@ -66,12 +66,15 @@ class _TheGodfatherState extends State<TheGodfather> {
               cartFunction: () {
                 var cartProvider =
                     Provider.of<CartProvider>(context, listen: false);
+                if(isInCart){
+                  _itemQuantity = cartProvider.cartList[cartIndex].itemQuantity;
+                }
                 Cart cartItem = Cart(
                   cartTitle: theGodfather,
                   cartImage: bookOne,
                   itemPrice: 123,
                 );
-                cartProvider.addToCart(cartItem);
+                cartProvider.setItemQuantity(cartItem,_itemQuantity);
                 setState(() {});
               },
               cartIcon: isInCart

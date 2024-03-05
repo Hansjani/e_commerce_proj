@@ -28,8 +28,7 @@ class _TestBookState extends State<TestBook> {
     CartProvider cartProvider =
         Provider.of<CartProvider>(context, listen: false);
     Cart? cartItem = isInCart
-        ? cartProvider.cartList
-            .firstWhere((item) => item.cartTitle == testBook)
+        ? cartProvider.cartList.firstWhere((item) => item.cartTitle == testBook)
         : null;
     int cartIndex =
         cartItem != null ? cartProvider.getIndexOfCartItem(cartItem) : -1;
@@ -74,7 +73,6 @@ class _TestBookState extends State<TestBook> {
             ItemCart(
               cartFunction: () {
                 if (isInCart) {
-                  cartProvider.removeAtIndexInCart(cartIndex);
                   print('Item is already in the cart');
                   print('Item quantity in cart: $itemQuantity');
                 } else {
@@ -106,8 +104,11 @@ class _TestBookState extends State<TestBook> {
               },
             ),
             ItemBuy(
-              buyFunction: () {},
-            )
+              buyFunction: () {
+
+              },
+            ),
+            // AddOrRemoveItemTwo(itemIndex: cartIndex),
           ],
         ),
       ),

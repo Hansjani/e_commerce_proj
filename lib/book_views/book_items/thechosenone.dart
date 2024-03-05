@@ -68,6 +68,9 @@ class _TheChosenBookState extends State<TheChosenBook> {
               cartFunction: () {
                 var cartProvider =
                     Provider.of<CartProvider>(context, listen: false);
+                if(isInCart){
+                  _itemQuantity = cartProvider.cartList[cartIndex].itemQuantity;
+                }
                 Cart cartItem = Cart(
                   cartTitle: theBook,
                   cartImage: showBook,

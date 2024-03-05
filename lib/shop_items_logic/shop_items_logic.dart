@@ -158,9 +158,9 @@ class ItemCart extends StatelessWidget {
         ),
         AddOrRemoveItem(
           itemIndex: itemIndex,
-          itemQuantity: itemQuantity,
-          itemMinus: itemMinus,
           itemPlus: itemPlus,
+          itemMinus: itemMinus,
+          itemQuantity: itemQuantity,
         )
       ],
     );
@@ -168,6 +168,7 @@ class ItemCart extends StatelessWidget {
 }
 
 class ItemBuy extends StatelessWidget {
+
   const ItemBuy({
     super.key,
     required this.buyFunction,
