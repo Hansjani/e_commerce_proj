@@ -1,4 +1,4 @@
-import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
+import 'package:e_commerce_ui_1/temp_user_login/firebase_logic.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -276,7 +276,7 @@ class _LoginFormState extends State<LoginForm> {
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.g_mobiledata_rounded),
                   onPressed: () {},
-                  label: const Text('Continue with Google'),
+                  label: const Text('Google'),
                 ),
               ),
               SizedBox(

@@ -1,4 +1,5 @@
-import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
+import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
+import 'package:e_commerce_ui_1/temp_user_login/firebase_logic.dart';
 import 'package:e_commerce_ui_1/user_logics/login_logic.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,13 @@ class _UserUpdateState extends State<UserUpdate> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Update Details'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, profileRoute, (route) => false);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: Column(
         children: [
@@ -27,10 +35,13 @@ class _UserUpdateState extends State<UserUpdate> {
               definePhoneController: _phoneController),
           ElevatedButton(
             onPressed: () {
-              _authService.updateUsernameAndPhone(
-                _phoneController.text,
-                _nameController.text,
-              );
+              _authService
+                  .updateUsernameAndPhone(
+                    _phoneController.text,
+                    _nameController.text,
+                  )
+                  .then((value) => Navigator.pushNamedAndRemoveUntil(
+                      context, profileRoute, (route) => false));
             },
             child: const Text('Update'),
           ),

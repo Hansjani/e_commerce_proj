@@ -9,3 +9,8 @@ const billRoute = '/bill_page/';
 const profileRoute = '/profile_page/';
 const testBookRoute = '/test_book/';
 const updateRoute = '/update_user/';
+
+const mainPageRoute = '/main_page/';
+const userProfileRoute = '/userProfile/';
+const userLoginRoute = '/userLogin/';
+const userRegisterRout = '/userRegister/';

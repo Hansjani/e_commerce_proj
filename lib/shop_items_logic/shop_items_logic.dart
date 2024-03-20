@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../cart/cart_provider.dart';
@@ -5,12 +7,12 @@ import '../cart/cart_provider.dart';
 class ItemImage extends StatelessWidget {
   const ItemImage({super.key, required this.itemImage});
 
-  final ImageProvider itemImage;
+  final String itemImage;
 
   @override
   Widget build(BuildContext context) {
-    return Image(
-      image: itemImage,
+    return Image.network(
+      itemImage,
       fit: BoxFit.contain,
       alignment: Alignment.center,
     );
@@ -168,7 +170,6 @@ class ItemCart extends StatelessWidget {
 }
 
 class ItemBuy extends StatelessWidget {
-
   const ItemBuy({
     super.key,
     required this.buyFunction,
@@ -267,6 +268,91 @@ class AddOrRemoveItem extends StatelessWidget {
                 child: const Text('+'),
               ),
             ],
+          );
+        }
+      },
+    );
+  }
+}
+
+class NewItemCart extends StatefulWidget {
+  final int productId;
+  final CartItem cartItem;
+
+  const NewItemCart(
+      {super.key, required this.productId, required this.cartItem});
+
+  @override
+  State<NewItemCart> createState() => _NewItemCartState();
+}
+
+class _NewItemCartState extends State<NewItemCart> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CartItemProvider>(
+      builder: (context, cartItemProvider, child) {
+        bool isInside = cartItemProvider.isInCart(widget.productId);
+        cartItemProvider.cartItemIndex(widget.cartItem);
+        if (isInside) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0,vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if(widget.cartItem.productQuantity > 1){
+                        cartItemProvider.decreaseQuantity(widget.cartItem);
+                      }else{
+                        cartItemProvider.removeFromCart(widget.productId);
+                      }
+                    },
+                    child: const Text('-'),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Text(
+                        widget.cartItem.productQuantity.toString(),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      log('inc');
+                      cartItemProvider.increaseQuantity(widget.cartItem);
+                    },
+                    child: const Text('+'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0,vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      cartItemProvider.addToCart(widget.cartItem);
+                    },
+                    child: const Icon(Icons.shopping_cart),
+                  ),
+                ),
+              ],
+            ),
           );
         }
       },

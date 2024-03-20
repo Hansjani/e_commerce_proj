@@ -73,22 +73,22 @@ class _HomePageViewState extends State<HomePageView> {
                   crossAxisCount: 2,
                   scrollDirection: Axis.horizontal,
                   children: [
-                    PhotoItems(
+                    PhotoItemsTwo(
                       imageDescription: 'Phones',
                       photoImage: showPhone,
                       navigationFunction: () {},
                     ),
-                    PhotoItems(
+                    PhotoItemsTwo(
                       imageDescription: 'Laptops',
                       photoImage: showLaptop,
                       navigationFunction: () {},
                     ),
-                    PhotoItems(
+                    PhotoItemsTwo(
                       imageDescription: 'Home Appliances',
                       photoImage: showAplliances,
                       navigationFunction: () {},
                     ),
-                    PhotoItems(
+                    PhotoItemsTwo(
                       imageDescription: 'Books',
                       photoImage: showBook,
                       navigationFunction: () =>

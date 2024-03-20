@@ -109,7 +109,7 @@ class FirebaseAuthService {
         return null;
       }
     } catch (error) {
-      print('Error fetching username: $error');
+      devtools.log('Error fetching username: $error');
       return null;
     }
   }
@@ -129,7 +129,7 @@ class FirebaseAuthService {
         return null;
       }
     } catch (error) {
-      print('Error fetching phone number: $error');
+      devtools.log('Error fetching phone number: $error');
       return null;
     }
   }

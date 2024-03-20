@@ -16,3 +16,4 @@ ImageProvider showPhone = const AssetImage('images/phone.png');
 ImageProvider showLaptop = const AssetImage('images/laptop.png');
 ImageProvider showBook = const AssetImage('images/book.png');
 ImageProvider showAplliances = const AssetImage('images/home_ap.png');
+ImageProvider replaceImage = const AssetImage('images/replacement.jpeg');

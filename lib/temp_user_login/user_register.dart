@@ -1,4 +1,4 @@
-import 'package:e_commerce_ui_1/temp_user_login/register_firebase_logic.dart';
+import 'package:e_commerce_ui_1/temp_user_login/firebase_logic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
