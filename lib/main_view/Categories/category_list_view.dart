@@ -5,10 +5,11 @@ import '../../APIs/AdminActionAPI/item_management_api.dart';
 
 class CategoryListView extends StatefulWidget {
   final int categoryId;
+  final String categoryName;
 
   const CategoryListView({
     super.key,
-    required this.categoryId,
+    required this.categoryId, required this.categoryName,
   });
 
   @override
@@ -34,7 +35,7 @@ class _CategoryListViewState extends State<CategoryListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product List'),
+        title: Text(widget.categoryName),
         centerTitle: true,
       ),
       body: RefreshIndicator(

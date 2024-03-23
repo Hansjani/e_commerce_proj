@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Item {
   final String productId;
@@ -68,7 +69,7 @@ class ItemCRUD {
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = jsonDecode(response.body);
-      Map<String,dynamic> itemData = jsonData[0];
+      Map<String, dynamic> itemData = jsonData[0];
       return Item.fromJson(itemData);
     } else {
       log(finalUrl.toString());
@@ -100,6 +101,7 @@ class ItemCRUD {
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
     final response = await request.send();
     final responseBody = await response.stream.bytesToString();
+    print(responseBody);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
       if (jsonResponse.containsKey('message') &&
@@ -128,6 +130,7 @@ class ItemCRUD {
     double productPrice,
     int productStock,
     String productCategory,
+    String company,
     void Function(String) onSuccess,
     void Function(String) onError,
   ) async {
@@ -137,15 +140,22 @@ class ItemCRUD {
       "productPrice": productPrice,
       "productStock": productStock,
       "productCategory": productCategory,
+      "company": company,
     };
     String jsonRequestBody = jsonEncode(requestBody);
     Uri fullUrl = baseUrl.resolve('item_create.php');
     final response = await http.post(fullUrl,
         body: jsonRequestBody, headers: {"Content-Type": "application/json"});
+    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       if (jsonResponse.containsKey('message')) {
         onSuccess(jsonResponse['message']);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt("sliderId", jsonResponse['sliderId']);
+        await prefs.setInt("productId", jsonResponse['productId']);
+        print(jsonResponse['sliderId']);
+        print(jsonResponse['productId']);
       }
     } else if (response.statusCode == 405) {
       String jsonResponse = jsonDecode(response.body)['error'];
@@ -154,8 +164,6 @@ class ItemCRUD {
       String jsonResponse = jsonDecode(response.body)['error'];
       onError(jsonResponse);
     } else {
-      print(response.statusCode);
-      print(response.body);
       onError('Some unexpected error occurred');
     }
   }
@@ -166,6 +174,7 @@ class ItemCRUD {
     String description,
     double productPrice,
     int productStock,
+    String productImageUrl,
     void Function(String) onSuccess,
     void Function(String) onError,
   ) async {
@@ -175,6 +184,7 @@ class ItemCRUD {
       "description": description,
       "productPrice": productPrice,
       "productStock": productStock,
+      "productImageUrl": productImageUrl,
     };
     String jsonRequestBody = jsonEncode(requestBody);
     Uri fullUrl = baseUrl.resolve('item_update.php');
@@ -230,6 +240,34 @@ class ItemCRUD {
       onError(jsonResponse);
     } else {
       onError('Some unexpected error occurred');
+    }
+  }
+
+  Future<List<String>> getCompanies() async {
+    Uri finalUrl = Uri.parse(
+        'http://192.168.29.184/app_db/Admin_actions/get_provider_company.php');
+
+    try {
+      final response = await http.get(finalUrl);
+      print(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> companiesJson = data['companies'];
+        final List<dynamic> merchantsJson = data['merchants'];
+        final List<String> merchants =
+            merchantsJson.map((e) => e.toString()).toList();
+        final List<String> companies =
+            companiesJson.map((e) => e.toString()).toList();
+        final List<String> provider = [];
+        for (int i = 0; i < merchants.length; i++) {
+          provider.add('${merchants[i]} -- ${companies[i]}');
+        }
+        return provider;
+      } else {
+        throw Exception('Failed to load companies: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load companies: $e');
     }
   }
 }

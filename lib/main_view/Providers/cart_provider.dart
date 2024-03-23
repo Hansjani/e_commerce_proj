@@ -67,4 +67,9 @@ class CartItemProvider with ChangeNotifier {
   bool isInCart(int cartItemId) {
     return _cartItems.any((cartItem) => cartItem.productId == cartItemId);
   }
+
+  void clearCart() {
+    _cartItems.clear();
+    notifyListeners();
+  }
 }

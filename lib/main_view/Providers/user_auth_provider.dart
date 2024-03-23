@@ -33,6 +33,7 @@ class AuthProvider with ChangeNotifier {
     String userType = decodedToken['userType'];
     String? profileImageUrl = decodedToken['imageUrl'];
 
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("username", username);
     await prefs.setString("phoneNumber", phoneNumber);

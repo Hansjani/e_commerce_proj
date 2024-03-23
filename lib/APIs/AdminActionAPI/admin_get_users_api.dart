@@ -73,6 +73,20 @@ class UserCRUD {
     } else {}
   }
 
+  Future<Users?> getByUsername(String username) async {
+    Uri fullUrl = baseUrl.resolve('Rgistered_user_actions/get_by_username.php?username=admin?username=$username');
+    final response = await http.get(fullUrl, headers: {
+      "Content-Type": "application/json",
+    });
+    if(response.statusCode == 200){
+      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      Users user = Users.fromJson(jsonResponse);
+      return user;
+    }else{
+      throw Exception();
+    }
+  }
+
   Future<List<Users>?> readUser() async {
     Uri fullUrl = baseUrl
         .resolve('http://192.168.29.184/app_db/Admin_actions/user_read.php');

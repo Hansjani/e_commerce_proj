@@ -65,6 +65,7 @@ class _UserLoginMainState extends State<UserLoginMain> {
                                 listen: false);
                             final prefs = await SharedPreferences.getInstance();
                             String? token = prefs.getString("userToken");
+                            print(token);
                             authProvider.login(token).then((value) =>
                                 Navigator.pushNamedAndRemoveUntil(
                                     context, mainPageRoute, (route) => false));

@@ -212,12 +212,12 @@ void logOutUser() async {
   await prefs.remove("userToken");
 }
 
-void areYouSure(BuildContext context) {
+void areYouSure(BuildContext context, void Function() logoutFunction) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text('Are you sure ?'),
+        title: const Text('Are you sure'),
         content: const Text(
             'Do you really want to logout ? Some of the data might not be saved.'),
         actions: [
@@ -228,9 +228,7 @@ void areYouSure(BuildContext context) {
             child: const Text('cancel'),
           ),
           TextButton(
-            onPressed: () {
-              AuthProvider().logout();
-            },
+            onPressed: logoutFunction,
             child: const Text('yes'),
           ),
         ],

@@ -30,6 +30,7 @@ class _MainHomePageState extends State<MainHomePage> {
     _currentIndexNotifier.dispose();
     super.dispose();
   }
+
   final CarouselController _carouselController = CarouselController();
 
   @override
@@ -79,7 +80,10 @@ class _MainHomePageState extends State<MainHomePage> {
                                   return GestureDetector(
                                     onTap: () => _carouselController
                                         .animateToPage(entry.key),
-                                    child: CarouselIndicator(index: entry.key, currentIndex: _currentIndexNotifier.value),
+                                    child: CarouselIndicator(
+                                        index: entry.key,
+                                        currentIndex:
+                                            _currentIndexNotifier.value),
                                   );
                                 }).toList(),
                               );
@@ -112,6 +116,7 @@ class _MainHomePageState extends State<MainHomePage> {
                                   categoryId: int.parse(
                                     category.categoryId,
                                   ),
+                                  categoryName: category.categoryName,
                                 );
                               },
                             ));

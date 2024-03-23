@@ -4,8 +4,10 @@ import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/admin_panel
 import 'package:e_commerce_ui_1/main_view/Home/cart_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/wishlist_page.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/OrderTab/order_history.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/register.dart';
+import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +129,7 @@ List<PopupMenuEntry> _menuItems(BuildContext context, String? user) {
   AuthProvider authProvider = Provider.of<AuthProvider>(context, listen: false);
   WishlistProvider wishlistProvider =
       Provider.of<WishlistProvider>(context, listen: false);
+  CartItemProvider cartItemProvider = Provider.of(context, listen: false);
 
   List<PopupMenuEntry> commonMenuItems = [
     PopupMenuItem(
@@ -150,17 +153,33 @@ List<PopupMenuEntry> _menuItems(BuildContext context, String? user) {
     ),
     PopupMenuItem(
       child: ListTile(
+        leading: const Icon(Icons.history_rounded),
+        title: const Text('History'),
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OrderHistory(),
+              ));
+        },
+      ),
+    ),
+    PopupMenuItem(
+      child: ListTile(
         leading: const Icon(Icons.logout),
         title: const Text('Logout'),
         onTap: () {
           Navigator.pop(context);
+          authProvider.logout();
           wishlistProvider.syncWithDatabase().then((value) {
             wishlistProvider.wishlist.clear();
-            authProvider.logout().then((value) {
-              Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(builder: (context) {
-                return MainPage(authProvider: authProvider);
-              }), (route) => false);
+            cartItemProvider.cartItems.clear();
+            areYouSure(context, () {
+              authProvider.logout().then((value) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, mainPageRoute, (route) => false);
+              });
             });
           });
         },
