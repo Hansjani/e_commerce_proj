@@ -1,3 +1,4 @@
+import 'package:e_commerce_ui_1/APIs/ProductAPI/product_feedback.dart';
 import 'package:e_commerce_ui_1/main_view/Categories/category_item_view.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,8 @@ class CategoryListView extends StatefulWidget {
 
   const CategoryListView({
     super.key,
-    required this.categoryId, required this.categoryName,
+    required this.categoryId,
+    required this.categoryName,
   });
 
   @override
@@ -69,7 +71,21 @@ class _CategoryListViewState extends State<CategoryListView> {
                           child: Image.network(item.productImage),
                         ),
                         title: Text(item.productName),
-                        subtitle: Text(item.description),
+                        subtitle: FutureBuilder(
+                          future: ProductFeedbackAPI().getRatings(
+                            int.parse(item.productId),
+                          ),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Text(snapshot.error.toString());
+                            } else if (snapshot.hasData) {
+                              double ratings = snapshot.data!;
+                              return RatingWidget(rating: ratings);
+                            } else {
+                              return const Text('rating...');
+                            }
+                          },
+                        ),
                         trailing: IconButton(
                           onPressed: () {
                             setState(() {

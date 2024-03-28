@@ -4,6 +4,7 @@ import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/admin_panel
 import 'package:e_commerce_ui_1/main_view/Home/cart_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/wishlist_page.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/Products/merchant_products.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/OrderTab/order_history.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/register.dart';
@@ -14,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Constants/SharedPreferences/key_names.dart';
 
 class MainPage extends StatefulWidget {
   final AuthProvider authProvider;
@@ -28,11 +31,12 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   late String userType;
+  bool _isLoggingOut = false;
 
   Future<String?> getUserType() async {
     final prefs = await SharedPreferences.getInstance();
     String? userType = prefs.getString("userType");
-    prefs.getString("userToken");
+    prefs.getString(PrefsKeys.userToken);
     return userType;
   }
 
@@ -55,6 +59,18 @@ class _MainPageState extends State<MainPage> {
     _pageController.jumpToPage(index);
   }
 
+  Future<void> _logOut() async {
+    setState(() {
+      _isLoggingOut = true;
+      print('logging out');
+    });
+    await widget.authProvider.logout();
+    setState(() {
+      _isLoggingOut = false;
+      print('logged out');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     devtools.log('HomeView Build');
@@ -73,9 +89,9 @@ class _MainPageState extends State<MainPage> {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   return PopupMenuButton(
-                    itemBuilder: (context) {
+                    itemBuilder: (menuContext) {
                       String? userType = snapshot.data;
-                      return _menuItems(context, userType);
+                      return _menuItems(context, menuContext, userType);
                     },
                   );
                 }
@@ -84,13 +100,26 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: const [
-          MainHomePage(),
-          MainWishlistPage(),
-          MainCartPage(),
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            children: const [
+              MainHomePage(),
+              MainWishlistPage(),
+              MainCartPage(),
+            ],
+          ),
+          if (_isLoggingOut)
+            ModalBarrier(
+              color: Colors.black.withOpacity(0.3),
+              dismissible: false,
+            ),
+          if (_isLoggingOut)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -123,137 +152,143 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-}
 
-List<PopupMenuEntry> _menuItems(BuildContext context, String? user) {
-  AuthProvider authProvider = Provider.of<AuthProvider>(context, listen: false);
-  WishlistProvider wishlistProvider =
-      Provider.of<WishlistProvider>(context, listen: false);
-  CartItemProvider cartItemProvider = Provider.of(context, listen: false);
+  List<PopupMenuEntry> _menuItems(
+      BuildContext context, BuildContext menuContext, String? user) {
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    WishlistProvider wishlistProvider =
+        Provider.of<WishlistProvider>(context, listen: false);
+    CartItemProvider cartItemProvider = Provider.of(context, listen: false);
 
-  List<PopupMenuEntry> commonMenuItems = [
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.person),
-        title: const Text('Profile'),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.pushNamed(context, userProfileRoute);
-        },
-      ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.settings),
-        title: const Text('Settings'),
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.history_rounded),
-        title: const Text('History'),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OrderHistory(),
-              ));
-        },
-      ),
-    ),
-    PopupMenuItem(
-      child: ListTile(
-        leading: const Icon(Icons.logout),
-        title: const Text('Logout'),
-        onTap: () {
-          Navigator.pop(context);
-          authProvider.logout();
-          wishlistProvider.syncWithDatabase().then((value) {
-            wishlistProvider.wishlist.clear();
-            cartItemProvider.cartItems.clear();
-            areYouSure(context, () {
-              authProvider.logout().then((value) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, mainPageRoute, (route) => false);
-              });
-            });
-          });
-        },
-      ),
-    ),
-  ];
-
-  if (user == null) {
-    return <PopupMenuEntry>[
+    List<PopupMenuEntry> commonMenuItems = [
       PopupMenuItem(
         child: ListTile(
-          leading: const Icon(Icons.login),
-          title: const Text('Login'),
+          leading: const Icon(Icons.person),
+          title: const Text('Profile'),
           onTap: () {
-            Navigator.pop(context);
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-              builder: (context) {
-                return UserLoginMain(
-                  authProvider: authProvider,
-                );
-              },
-            ), (route) => false);
+            Navigator.pop(menuContext);
+            Navigator.pushNamed(context, userProfileRoute);
           },
         ),
       ),
       PopupMenuItem(
         child: ListTile(
-          leading: const Icon(Icons.app_registration),
-          title: const Text('Register'),
+          leading: const Icon(Icons.settings),
+          title: const Text('Settings'),
           onTap: () {
-            Navigator.pop(context);
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-              builder: (context) {
-                return UserRegisterMain(
-                  authProvider: authProvider,
-                );
-              },
-            ), (route) => false);
+            Navigator.pop(menuContext);
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.history_rounded),
+          title: const Text('History'),
+          onTap: () {
+            Navigator.pop(menuContext);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OrderHistory(),
+                ));
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          leading: const Icon(Icons.logout),
+          title: const Text('Logout'),
+          onTap: () {
+            wishlistProvider.syncWithDatabase().then((value) {
+              wishlistProvider.wishlist.clear();
+              cartItemProvider.cartItems.clear();
+              Navigator.pop(menuContext);
+              areYouSure(context, () {
+                _logOut().then((value) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, mainPageRoute, (route) => false);
+                });
+              });
+            });
           },
         ),
       ),
     ];
-  } else if (user == 'admin') {
-    return commonMenuItems +
-        <PopupMenuEntry>[
-          PopupMenuItem(
-            child: ListTile(
-              leading: const Icon(Icons.admin_panel_settings),
-              title: const Text('Admin panel'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminPanelList(),
-                    ));
-              },
-            ),
+
+    if (user == null) {
+      return <PopupMenuEntry>[
+        PopupMenuItem(
+          child: ListTile(
+            leading: const Icon(Icons.login),
+            title: const Text('Login'),
+            onTap: () {
+              Navigator.pop(menuContext);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                builder: (context) {
+                  return UserLoginMain(
+                    authProvider: authProvider,
+                  );
+                },
+              ), (route) => false);
+            },
           ),
-        ];
-  } else if (user == 'merchant') {
-    return commonMenuItems +
-        <PopupMenuEntry>[
-          PopupMenuItem(
-            child: ListTile(
-              leading: const Icon(Icons.admin_panel_settings),
-              title: const Text('Merchant options'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+        ),
+        PopupMenuItem(
+          child: ListTile(
+            leading: const Icon(Icons.app_registration),
+            title: const Text('Register'),
+            onTap: () {
+              Navigator.pop(menuContext);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                builder: (context) {
+                  return UserRegisterMain(
+                    authProvider: authProvider,
+                  );
+                },
+              ), (route) => false);
+            },
           ),
-        ];
-  } else {
-    return commonMenuItems;
+        ),
+      ];
+    } else if (user == 'admin') {
+      return commonMenuItems +
+          <PopupMenuEntry>[
+            PopupMenuItem(
+              child: ListTile(
+                leading: const Icon(Icons.admin_panel_settings),
+                title: const Text('Admin panel'),
+                onTap: () {
+                  Navigator.pop(menuContext);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminPanelList(),
+                      ));
+                },
+              ),
+            ),
+          ];
+    } else if (user == 'merchant') {
+      return commonMenuItems +
+          <PopupMenuEntry>[
+            PopupMenuItem(
+              child: ListTile(
+                leading: const Icon(Icons.admin_panel_settings),
+                title: const Text('Merchant options'),
+                onTap: () {
+                  Navigator.pop(menuContext);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MerchantProducts(),
+                      ));
+                },
+              ),
+            ),
+          ];
+    } else {
+      return commonMenuItems;
+    }
   }
 }

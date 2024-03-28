@@ -74,7 +74,7 @@ class UserCRUD {
   }
 
   Future<Users?> getByUsername(String username) async {
-    Uri fullUrl = baseUrl.resolve('Rgistered_user_actions/get_by_username.php?username=admin?username=$username');
+    Uri fullUrl = baseUrl.resolve('http://192.168.29.184/app_db/Rgistered_user_actions/get_by_username.php?username=$username');
     final response = await http.get(fullUrl, headers: {
       "Content-Type": "application/json",
     });
@@ -83,6 +83,7 @@ class UserCRUD {
       Users user = Users.fromJson(jsonResponse);
       return user;
     }else{
+      print(response.body);
       throw Exception();
     }
   }

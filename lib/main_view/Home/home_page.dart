@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_carousel_slider_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_category_api.dart';
+import 'package:e_commerce_ui_1/TEMP/web_view.dart';
 import 'package:e_commerce_ui_1/main_view/Categories/category_list_view.dart';
 import 'package:e_commerce_ui_1/main_view/photo_items_logic/photo_items.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _MainHomePageState extends State<MainHomePage> {
                                 }).toList(),
                               );
                             },
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -103,6 +104,7 @@ class _MainHomePageState extends State<MainHomePage> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       ProductCategory category = categories[index];
                       return Card(
@@ -126,6 +128,68 @@ class _MainHomePageState extends State<MainHomePage> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      ListTile(
+                        leading: SizedBox(
+                          width: 70,
+                          child: Image.network(
+                              'https://ishtexim.com/public/images/product/Hot%20&%20Spicy-01_11zon.webp'),
+                        ),
+                        title: const Text('Hot & Spicy Flavour Noodles'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ItemWebView(
+                                  url: 'https://ishtexim.com/productDetail/85',
+                                  title: 'Hot & Spicy Flavour Noodles',),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: SizedBox(
+                          width: 70,
+                          child: Image.network(
+                              'https://ishtexim.com/public/images/product/Shrimp-01_11zon.webp'),
+                        ),
+                        title: const Text('Shrimp Flavour Noodles'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ItemWebView(
+                                url: 'https://ishtexim.com/productDetail/86',
+                                title: 'Shrimp Flavour Noodles',),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: SizedBox(
+                          width: 70,
+                          child: Image.network(
+                              'https://ishtexim.com/public/images/product/Veggie-01__11zon.webp'),
+                        ),
+                        title: const Text('Veggie Flavour Noodles'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ItemWebView(
+                                url: 'https://ishtexim.com/productDetail/87',
+                                title: 'Veggie Flavour Noodles',),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           );

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -73,7 +74,7 @@ class UserActionAPI {
         if (isSuccessful) {
           String token = jsonResponse['token'];
           SharedPreferences preferences = await SharedPreferences.getInstance();
-          await preferences.setString('userToken', token);
+          await preferences.setString(PrefsKeys.userToken, token);
           success('Success');
         } else {
           error("Error : ${jsonResponse['error']}");
@@ -121,7 +122,7 @@ class UserActionAPI {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       String token = jsonResponse['token'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("userToken", token);
+      await prefs.setString(PrefsKeys.userToken, token);
       authProvider.register(token);
       success(jsonResponse['message']);
     } else if (response.statusCode == 409) {
@@ -194,25 +195,11 @@ class UserActionAPI {
       error(response.statusCode.toString());
     }
   }
+
+
 }
 
-void saveData(String username) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString("username", username);
-}
-
-Future<String?> getData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString("username");
-}
-
-void logOutUser() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.remove("username");
-  await prefs.remove("userToken");
-}
-
-void areYouSure(BuildContext context, void Function() logoutFunction) {
+void areYouSure(BuildContext context, void Function() placeOrder) {
   showDialog(
     context: context,
     builder: (context) {
@@ -228,7 +215,7 @@ void areYouSure(BuildContext context, void Function() logoutFunction) {
             child: const Text('cancel'),
           ),
           TextButton(
-            onPressed: logoutFunction,
+            onPressed: placeOrder,
             child: const Text('yes'),
           ),
         ],

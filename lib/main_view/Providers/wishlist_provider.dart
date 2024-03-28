@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/SharedPreferences/key_names.dart';
+
 class Wishlist {
   final int productId;
   final String title;
@@ -92,12 +94,12 @@ class WishlistProvider with ChangeNotifier {
 
   Future<void> initWishlist() async {
     final prefs = await SharedPreferences.getInstance();
-    bool firstInit = prefs.getBool('firstInit') ?? true;
-    String? token = prefs.getString("userToken");
-    String? username = prefs.getString("username");
+    bool firstInit = prefs.getBool(PrefsKeys.firstWishInit) ?? true;
+    String? token = prefs.getString(PrefsKeys.userToken);
+    String? username = prefs.getString(PrefsKeys.userName);
     if (firstInit && username != null && token != null) {
       await fetchWishlist(token);
-      prefs.setBool('firstInit', false);
+      prefs.setBool(PrefsKeys.firstWishInit, false);
     } else {
       await loadWishlistData();
     }
@@ -108,12 +110,12 @@ class WishlistProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final wishlistJson =
         jsonEncode(_wishlist.map((wishlist) => wishlist.toJson()).toList());
-    await prefs.setString('wishlist', wishlistJson);
+    await prefs.setString(PrefsKeys.wishlist, wishlistJson);
   }
 
   Future<void> loadWishlistData() async {
     final prefs = await SharedPreferences.getInstance();
-    final wishlistJson = prefs.getString('wishlist');
+    final wishlistJson = prefs.getString(PrefsKeys.wishlist);
     if (wishlistJson != null) {
       final List<dynamic> wishlistList = jsonDecode(wishlistJson);
       _wishlist.clear();
@@ -132,7 +134,7 @@ class WishlistProvider with ChangeNotifier {
 
   Future<void> syncWithDatabase() async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
+    String? token = prefs.getString(PrefsKeys.userToken);
 
     if (token != null) {
       List<int> productIdList =

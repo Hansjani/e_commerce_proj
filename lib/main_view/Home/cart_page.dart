@@ -39,9 +39,8 @@ class MainCartPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    CategoryItemView(
-                                        productID: cartItem.productId),
+                                builder: (context) => CategoryItemView(
+                                    productID: cartItem.productId),
                               ),
                             );
                           },
@@ -54,8 +53,7 @@ class MainCartPage extends StatelessWidget {
                             children: [
                               Text('Price : ₹ ${item.productPrice}'),
                               Text(
-                                  'Quantity : ${cartItem.productQuantity
-                                      .toString()}'),
+                                  'Quantity : ${cartItem.productQuantity.toString()}'),
                             ],
                           ),
                           trailing: IconButton(
@@ -76,13 +74,21 @@ class MainCartPage extends StatelessWidget {
             bottomNavigationBar: BottomAppBar(
               child: ElevatedButton(
                   onPressed: () {
-                    List<OrderProduct> products = cartItems.map((cartItem) =>
-                        OrderProduct(productId: cartItem.productId,
-                            quantity: cartItem.productQuantity),)
+                    List<OrderProduct> products = cartItems
+                        .map(
+                          (cartItem) => OrderProduct(
+                              productId: cartItem.productId,
+                              quantity: cartItem.productQuantity),
+                        )
                         .toList();
-                    OrderAPI().placeOrder(
-                      products,
-                    ).then((value) => cartItemProvider.clearCart());
+                    placeOrder(context, () {
+                      OrderAPI()
+                          .placeOrder(products)
+                          .then((value) => cartItemProvider.clearCart())
+                          .then((value) {
+                        Navigator.pop(context);
+                      });
+                    });
                   },
                   child: const Text('Press')),
             ),
@@ -130,10 +136,7 @@ class LoadingTile extends StatelessWidget {
                   child: SkeletonAnimation(
                     child: Container(
                       height: 15,
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.6,
+                      width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
                           color: Colors.grey[300]),

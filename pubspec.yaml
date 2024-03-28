@@ -52,6 +52,7 @@ dependencies:
   jwt_decode: ^0.3.1
   multi_image_picker: ^4.8.01
   skeleton_text: ^3.0.1
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:

@@ -15,7 +15,7 @@ class TokenManager {
 
   // void expireToken() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? token = prefs.getString("userToken");
+  //   String? token = prefs.getString(PrefsKeys.userToken);
   //
   //   if (token != null) {
   //     log(token);

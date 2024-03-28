@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -78,6 +79,21 @@ class ItemCRUD {
     }
   }
 
+  Future<List<Item>> readByProductProvider(String? company) async {
+    Uri finalUrl = baseUrl.resolve('read_by_provider.php?provider=$company');
+    final response = await http.get(
+      finalUrl,
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      return jsonData.map((item) => Item.fromJson(item)).toList();
+    } else {
+      log(finalUrl.toString());
+      log(response.body);
+      throw Exception('Failed to load users');
+    }
+  }
+
   Future<String?> pickUpdateImage(int? productId) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -101,7 +117,6 @@ class ItemCRUD {
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
     final response = await request.send();
     final responseBody = await response.stream.bytesToString();
-    print(responseBody);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
       if (jsonResponse.containsKey('message') &&
@@ -146,16 +161,13 @@ class ItemCRUD {
     Uri fullUrl = baseUrl.resolve('item_create.php');
     final response = await http.post(fullUrl,
         body: jsonRequestBody, headers: {"Content-Type": "application/json"});
-    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       if (jsonResponse.containsKey('message')) {
         onSuccess(jsonResponse['message']);
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setInt("sliderId", jsonResponse['sliderId']);
-        await prefs.setInt("productId", jsonResponse['productId']);
-        print(jsonResponse['sliderId']);
-        print(jsonResponse['productId']);
+        await prefs.setInt(PrefsKeys.sliderId, jsonResponse['sliderId']);
+        await prefs.setInt(PrefsKeys.productId, jsonResponse['productId']);
       }
     } else if (response.statusCode == 405) {
       String jsonResponse = jsonDecode(response.body)['error'];
@@ -249,7 +261,6 @@ class ItemCRUD {
 
     try {
       final response = await http.get(finalUrl);
-      print(response.body);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> companiesJson = data['companies'];

@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_carousel_slider_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
+import 'package:e_commerce_ui_1/APIs/ProductAPI/product_feedback.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/wishlist_provider.dart';
@@ -146,11 +147,89 @@ class _CategoryItemViewState extends State<CategoryItemView> {
                   ItemBuy(
                     buyFunction: () {},
                   ),
+                  const ItemSectionDivider(),
+                  FutureRatings(widget: widget),
+                  CommentsSection(productId: widget.productID),
                 ],
               ),
             );
           }
         },
+      ),
+    );
+  }
+}
+
+class FutureRatings extends StatelessWidget {
+  const FutureRatings({
+    super.key,
+    required this.widget,
+  });
+
+  final CategoryItemView widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future:
+          ProductFeedbackAPI().ratingsOfProduct(widget.productID),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        } else if (snapshot.hasData) {
+          List<int>? ratings = snapshot.data!;
+          return RatingsChartBar(ratingList: ratings);
+        } else if (snapshot.connectionState ==
+            ConnectionState.waiting) {
+          return const Text('waiting...');
+        } else if (snapshot.data == null) {
+          return const Text(
+              'No rating available for this product');
+        } else {
+          return const Text('Uncaught exception');
+        }
+      },
+    );
+  }
+}
+
+class ItemSectionDivider extends StatelessWidget {
+  const ItemSectionDivider({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(
+                left: 20,
+                right: 10,
+              ),
+              child: const Divider(),
+            ),
+          ),
+          RichText(
+            text: const TextSpan(
+              text: 'Feedback Section',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(
+                left: 10,
+                right: 20,
+              ),
+              child: const Divider(),
+            ),
+          ),
+        ],
       ),
     );
   }

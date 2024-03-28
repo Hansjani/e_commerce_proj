@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,7 +47,7 @@ class OrderAPI {
 
   Future<void> placeOrder(List<OrderProduct> products) async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
+    String? token = prefs.getString(PrefsKeys.userToken);
     List<Map<String, dynamic>> productsJson =
         products.map((product) => product.toJson()).toList();
     Map<String, dynamic> requestBody = {
@@ -73,7 +75,7 @@ class OrderAPI {
 
   Future<List<Order>> getOrderHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
+    String? token = prefs.getString(PrefsKeys.userToken);
     Uri finalUrl = baseUrl.resolve('order_history.php?token=$token');
     final response = await http.get(
       finalUrl,
@@ -110,4 +112,29 @@ class OrderAPI {
       throw Exception();
     }
   }
+}
+
+void placeOrder(BuildContext context, void Function() logoutFunction) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Place Order?'),
+        content: const Text(
+            'Do you really want to place order? You can cancel the order anytime you want.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('cancel'),
+          ),
+          TextButton(
+            onPressed: logoutFunction,
+            child: const Text('yes'),
+          ),
+        ],
+      );
+    },
+  );
 }

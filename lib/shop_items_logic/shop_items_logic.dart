@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:e_commerce_ui_1/APIs/ProductAPI/product_feedback.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -295,7 +296,8 @@ class _NewItemCartState extends State<NewItemCart> {
         cartItemProvider.cartItemIndex(widget.cartItem);
         if (isInside) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0,vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -303,9 +305,9 @@ class _NewItemCartState extends State<NewItemCart> {
                   flex: 1,
                   child: ElevatedButton(
                     onPressed: () {
-                      if(widget.cartItem.productQuantity > 1){
+                      if (widget.cartItem.productQuantity > 1) {
                         cartItemProvider.decreaseQuantity(widget.cartItem);
-                      }else{
+                      } else {
                         cartItemProvider.removeFromCart(widget.productId);
                       }
                     },
@@ -339,7 +341,8 @@ class _NewItemCartState extends State<NewItemCart> {
           );
         } else {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0,vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -354,6 +357,111 @@ class _NewItemCartState extends State<NewItemCart> {
               ],
             ),
           );
+        }
+      },
+    );
+  }
+}
+
+class RatingsChartBar extends StatelessWidget {
+  const RatingsChartBar({Key? key, required this.ratingList}) : super(key: key);
+
+  final List<int> ratingList;
+
+  Map<int, int> _calculateDistribution(List<int> ratings) {
+    Map<int, int> distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    for (int rating in ratings) {
+      distribution[rating] = (distribution[rating] ?? 0) + 1;
+    }
+    return distribution;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Map<int, int> ratingDistribution = _calculateDistribution(ratingList);
+
+    int totalRatings = ratingList.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: ratingDistribution.entries.map((entry) {
+        int starCount = entry.key;
+        int count = entry.value;
+        double percentage = (count / totalRatings);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('$starCount Stars'),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Container(
+                  height: 20,
+                  color: Colors.blue,
+                  width: MediaQuery.of(context).size.width * percentage,
+                  margin: const EdgeInsets.only(right: 8.0),
+                ),
+                Text('${(percentage * 100).toStringAsFixed(2)}%'),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        );
+      }).toList(),
+    );
+  }
+}
+
+class CommentsSection extends StatelessWidget {
+  const CommentsSection({super.key, required this.productId});
+
+  final int productId;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: ProductFeedbackAPI().commentsOfProduct(productId),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          case ConnectionState.done:
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('${snapshot.error}'),
+              );
+            } else if (snapshot.hasData) {
+              List<ProductFeedback> feedback = snapshot.data!;
+              return SizedBox(
+                height: 500,
+                width: 400,
+                child: ListView.builder(
+                  itemCount: feedback.length,
+                  itemBuilder: (context, index) {
+                    ProductFeedback userFeedback = feedback[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(userFeedback.username),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(userFeedback.comment),
+                            RatingWidget(rating: userFeedback.rating.toDouble()),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              return const Center(
+                child: Text('No feedback for this product'),
+              );
+            }
+          default:
+            return const Center(child: CircularProgressIndicator());
         }
       },
     );

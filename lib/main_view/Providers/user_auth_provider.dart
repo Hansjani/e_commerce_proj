@@ -1,3 +1,4 @@
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,13 +34,12 @@ class AuthProvider with ChangeNotifier {
     String userType = decodedToken['userType'];
     String? profileImageUrl = decodedToken['imageUrl'];
 
-
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("username", username);
-    await prefs.setString("phoneNumber", phoneNumber);
-    await prefs.setString("email", email);
-    await prefs.setString("userType", userType);
-    await prefs.setString("profileImage", profileImageUrl ?? '');
+    await prefs.setString(PrefsKeys.userName, username);
+    await prefs.setString(PrefsKeys.userPhone, phoneNumber);
+    await prefs.setString(PrefsKeys.userEmail, email);
+    await prefs.setString(PrefsKeys.userType, userType);
+    await prefs.setString(PrefsKeys.userProfile, profileImageUrl ?? '');
 
     _currentUser = User(
       email: email,
@@ -59,11 +59,11 @@ class AuthProvider with ChangeNotifier {
     String userType = decodedToken['userType'];
     String? profileImageUrl = decodedToken['imageUrl'];
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("username", username);
-    await prefs.setString("phoneNumber", phoneNumber);
-    await prefs.setString("email", email);
-    await prefs.setString("userType", userType);
-    await prefs.setString("profileImage", profileImageUrl ?? '');
+    await prefs.setString(PrefsKeys.userName, username);
+    await prefs.setString(PrefsKeys.userPhone, phoneNumber);
+    await prefs.setString(PrefsKeys.userEmail, email);
+    await prefs.setString(PrefsKeys.userType, userType);
+    await prefs.setString(PrefsKeys.userProfile, profileImageUrl ?? '');
   }
 
   Future<void> logout() async {
@@ -73,21 +73,47 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> initUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString("username");
-    final phoneNumber = prefs.getString("phoneNumber");
-    final email = prefs.getString("email");
+    final username = prefs.getString(PrefsKeys.userName);
+    final phoneNumber = prefs.getString(PrefsKeys.userPhone);
+    final email = prefs.getString(PrefsKeys.userEmail);
     final userType = prefs.getString("userType");
     final profileImage = prefs.getString("profileImage");
+    if (await isExpired()) {
+      logout();
+    } else {
+      if (username != null && phoneNumber != null) {
+        _currentUser = User(
+          username: username,
+          phoneNumber: phoneNumber,
+          email: email,
+          profileImageUrl: profileImage,
+          userType: userType,
+        );
+        notifyListeners();
+      }
+    }
+  }
 
-    if (username != null && phoneNumber != null) {
-      _currentUser = User(
-        username: username,
-        phoneNumber: phoneNumber,
-        email: email,
-        profileImageUrl: profileImage,
-        userType: userType,
-      );
-      notifyListeners();
+  Future<bool> isExpired() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(PrefsKeys.userToken);
+    if (token == null) {
+      return true;
+    } else {
+      try {
+        Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+        int? expirationTime = decodedToken['exp'];
+        if (expirationTime != null) {
+          DateTime expirationDate =
+              DateTime.fromMillisecondsSinceEpoch(expirationTime * 1000);
+          return DateTime.now().isAfter(expirationDate);
+        } else {
+          return true;
+        }
+      } catch (e) {
+        print(e);
+        throw Exception();
+      }
     }
   }
 }

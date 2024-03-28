@@ -3,7 +3,6 @@ import 'package:e_commerce_ui_1/APIs/UserAPI/user_action_api.dart';
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_main.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../user_logics/login_logic.dart';
 
