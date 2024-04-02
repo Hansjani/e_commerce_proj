@@ -77,8 +77,9 @@ class MainCartPage extends StatelessWidget {
                     List<OrderProduct> products = cartItems
                         .map(
                           (cartItem) => OrderProduct(
-                              productId: cartItem.productId,
-                              quantity: cartItem.productQuantity),
+                            productId: cartItem.productId,
+                            quantity: cartItem.productQuantity,
+                          ),
                         )
                         .toList();
                     placeOrder(context, () {

@@ -1,18 +1,24 @@
-import 'package:e_commerce_ui_1/Constants/shop_item_images.dart';
+import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:developer' as devtools show log;
-import 'package:e_commerce_ui_1/temp_user_login/temp_img_handle.dart';
+import 'image_handle.dart';
 
 class ImageDialog extends StatelessWidget {
+  final User? user;
   final String? imageUrl;
   final VoidCallback? onUpdateProfilePicture;
   final ImgHandle imgHandle = ImgHandle();
 
-  ImageDialog({super.key, required this.imageUrl, this.onUpdateProfilePicture});
+  ImageDialog(
+      {super.key,
+      required this.imageUrl,
+      this.onUpdateProfilePicture,
+      this.user});
 
   @override
   Widget build(BuildContext context) {
+    devtools.log('not null');
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -55,11 +61,9 @@ class ImageDialog extends StatelessWidget {
                                 ),
                                 onTap: () async {
                                   Navigator.pop(context);
-                                  await imgHandle
-                                      .removeProfilePicture()
-                                      .then((_) {
-                                    onUpdateProfilePicture?.call();
-                                  });
+                                  imgHandle.removeProfilePicture().then(
+                                      (value) =>
+                                          onUpdateProfilePicture?.call());
                                 },
                               ),
                             ),
@@ -82,13 +86,9 @@ class ImageDialog extends StatelessWidget {
                                   XFile? image =
                                       await imgHandle.chooseProfilePhoto();
                                   if (image != null) {
-                                    devtools
-                                        .log('Image selected:${image.path}');
                                     String? url = await imgHandle
                                         .uploadProfileImage(image);
                                     if (url != null) {
-                                      devtools.log(
-                                          'Image successfully uploaded URL: $url');
                                       await imgHandle.saveProfilePhotoUrl(url);
                                       onUpdateProfilePicture?.call();
                                     } else {
@@ -135,11 +135,16 @@ class ImageDialogNull extends StatelessWidget {
   final VoidCallback? onUpdateProfilePicture;
   final ImgHandle imgHandle = ImgHandle();
 
-  ImageDialogNull(
-      {super.key, required this.imageUrl, this.onUpdateProfilePicture});
+  ImageDialogNull({
+    super.key,
+    required this.imageUrl,
+    this.onUpdateProfilePicture,
+  });
 
   @override
   Widget build(BuildContext context) {
+    devtools.log('null');
+    ImageProvider replaceImage = const AssetImage('images/replacement.jpeg');
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -155,7 +160,7 @@ class ImageDialogNull extends StatelessWidget {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: replaceImage,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -212,13 +217,9 @@ class ImageDialogNull extends StatelessWidget {
                                   XFile? image =
                                       await imgHandle.chooseProfilePhoto();
                                   if (image != null) {
-                                    devtools
-                                        .log('Image selected:${image.path}');
                                     String? url = await imgHandle
                                         .uploadProfileImage(image);
                                     if (url != null) {
-                                      devtools.log(
-                                          'Image successfully uploaded URL: $url');
                                       await imgHandle.saveProfilePhotoUrl(url);
                                       onUpdateProfilePicture?.call();
                                     } else {

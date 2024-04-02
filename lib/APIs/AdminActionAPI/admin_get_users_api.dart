@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Users {
   final String id;
@@ -74,15 +76,16 @@ class UserCRUD {
   }
 
   Future<Users?> getByUsername(String username) async {
-    Uri fullUrl = baseUrl.resolve('http://192.168.29.184/app_db/Rgistered_user_actions/get_by_username.php?username=$username');
+    Uri fullUrl = baseUrl.resolve(
+        'http://192.168.29.184/app_db/Rgistered_user_actions/get_by_username.php?username=$username');
     final response = await http.get(fullUrl, headers: {
       "Content-Type": "application/json",
     });
-    if(response.statusCode == 200){
-      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       Users user = Users.fromJson(jsonResponse);
       return user;
-    }else{
+    } else {
       print(response.body);
       throw Exception();
     }
@@ -162,5 +165,30 @@ class UserCRUD {
     } else if (response.statusCode == 409) {
     } else if (response.statusCode == 500) {
     } else {}
+  }
+
+  Future<bool> isApprovedMerchant() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString(PrefsKeys.userName);
+    if(username != null){
+      Uri finalUrl = baseUrl.resolve('merchant_approval.php?username=$username');
+      final response = await http.get(
+        finalUrl,
+        headers: {"Content-Type": "application/jsom"},
+      );
+      if (response.statusCode == 200) {
+        Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+        int isApproved = jsonResponse['is_approved'] ?? 0;
+        if(isApproved == 1){
+          return true;
+        }else{
+          return false;
+        }
+      } else {
+        throw Exception();
+      }
+    }else{
+      return false;
+    }
   }
 }

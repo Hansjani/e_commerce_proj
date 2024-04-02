@@ -1,3 +1,5 @@
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/Notifications/admin_notification.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/OrderManagement/all_orders_list.dart';
 import 'package:flutter/material.dart';
 import 'UserManagement/app_users.dart';
 
@@ -28,12 +30,25 @@ class _AdminPanelListState extends State<AdminPanelList> {
             },
           ),
           ListTile(
+            title: const Text('Notifications'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminNotification(),
+                ),
+              );
+            },
+          ),
+          ListTile(
             title: const Text('App Products'),
             onTap: () {},
           ),
           ListTile(
             title: const Text('User Orders'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AllOrderList(),));
+            },
           ),
           ListTile(
             title: const Text('User Wishlists'),

@@ -7,13 +7,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OrderProduct {
   final int productId;
   final int quantity;
+  String? status;
 
-  OrderProduct({required this.productId, required this.quantity});
+  OrderProduct(
+      {required this.productId, required this.quantity,this.status});
 
   factory OrderProduct.fromJson(Map<String, dynamic> json) {
     return OrderProduct(
       productId: json["productId"],
       quantity: json["quantity"],
+      status: json["status"],
     );
   }
 
@@ -81,6 +84,7 @@ class OrderAPI {
       finalUrl,
       headers: {"Content-Type": "application/json"},
     );
+    print(response.body);
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
       List<Order> orders =
@@ -100,10 +104,11 @@ class OrderAPI {
       finalUrl,
       headers: {"Content-Type": "application/json"},
     );
+    print(response.body);
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
       List<OrderProduct> orderItems =
-      jsonResponse.map((items) => OrderProduct.fromJson(items)).toList();
+          jsonResponse.map((items) => OrderProduct.fromJson(items)).toList();
       print(orderItems);
       return orderItems;
     } else {

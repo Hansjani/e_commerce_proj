@@ -1,5 +1,6 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_get_users_api.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/Products/add_products.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/Products/update_product.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +77,16 @@ class _MerchantProductsState extends State<MerchantProducts> {
                   ),
                   title: Text(item.productName),
                   subtitle: Text('Stock : ${item.productStock}'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UpdateProducts(
+                          itemId: int.parse(item.productId),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );

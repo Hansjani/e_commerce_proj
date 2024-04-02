@@ -67,7 +67,7 @@ class _ApplicationUsersState extends State<ApplicationUsers> {
                 );
               }
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),

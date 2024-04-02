@@ -6,48 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiUser {
-  final String? username;
-  final String? password;
-  final String? token;
-  final String? email;
-  final String? phoneNumber;
-  final String? userType;
-  final String? imageUrl;
-
-  ApiUser(
-      {required this.username,
-      required this.password,
-      required this.token,
-      required this.email,
-      required this.phoneNumber,
-      required this.userType,
-      required this.imageUrl});
-
-  factory ApiUser.fromJson(Map<String, dynamic> json) {
-    return ApiUser(
-      username: json['username'],
-      password: json['password'],
-      token: json['token'],
-      email: json['email'],
-      phoneNumber: json['phone_number'],
-      userType: json['userType'],
-      imageUrl: json['imageUrl'],
-    );
-  }
-
-  Map<String, dynamic> regToJson() {
-    return {
-      "email": email,
-      "username": username,
-      "password": password,
-      "phone_number": phoneNumber,
-      "user_type": userType,
-      "image_url": imageUrl,
-    };
-  }
-}
-
 class UserActionAPI {
   Uri baseUrl =
       Uri.parse('http://192.168.29.184/app_db/Rgistered_user_actions/');
@@ -195,8 +153,6 @@ class UserActionAPI {
       error(response.statusCode.toString());
     }
   }
-
-
 }
 
 void areYouSure(BuildContext context, void Function() placeOrder) {

@@ -157,8 +157,10 @@ class ItemCRUD {
       "productCategory": productCategory,
       "company": company,
     };
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
     String jsonRequestBody = jsonEncode(requestBody);
-    Uri fullUrl = baseUrl.resolve('item_create.php');
+    Uri fullUrl = baseUrl.resolve('item_create.php?token=${token!}');
     final response = await http.post(fullUrl,
         body: jsonRequestBody, headers: {"Content-Type": "application/json"});
     if (response.statusCode == 200) {
@@ -176,7 +178,8 @@ class ItemCRUD {
       String jsonResponse = jsonDecode(response.body)['error'];
       onError(jsonResponse);
     } else {
-      onError('Some unexpected error occurred');
+      String jsonResponse = jsonDecode(response.body)['error'];
+      onError(jsonResponse);
     }
   }
 
@@ -233,9 +236,13 @@ class ItemCRUD {
       "productId": productId,
     };
     String jsonRequestBody = jsonEncode(requestBody);
-    Uri fullUrl = baseUrl.resolve('item_delete.php');
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    Uri fullUrl = baseUrl.resolve('item_delete.php?token=${token!}');
+    log(fullUrl.toString());
     final response = await http.delete(fullUrl,
         body: jsonRequestBody, headers: {"Content-Type": "application/json"});
+    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       if (jsonResponse.containsKey('message')) {
@@ -289,6 +296,26 @@ void onError(BuildContext context, String error) {
     builder: (context) {
       return AlertDialog(
         title: const Text('Error!'),
+        content: Text(error),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('ok'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void onInApproved(BuildContext context, String error) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Attention!'),
         content: Text(error),
         actions: [
           TextButton(

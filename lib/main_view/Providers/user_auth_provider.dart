@@ -4,11 +4,11 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
-  final String username;
-  final String phoneNumber;
-  final String? email;
-  final String? userType;
-  final String? profileImageUrl;
+  String username;
+  String phoneNumber;
+  String? email;
+  String? userType;
+  String? profileImageUrl;
 
   User({
     required this.username,
@@ -63,7 +63,7 @@ class AuthProvider with ChangeNotifier {
     await prefs.setString(PrefsKeys.userPhone, phoneNumber);
     await prefs.setString(PrefsKeys.userEmail, email);
     await prefs.setString(PrefsKeys.userType, userType);
-    await prefs.setString(PrefsKeys.userProfile, profileImageUrl ?? '');
+    await prefs.setString(PrefsKeys.userProfile, profileImageUrl ?? 'null');
   }
 
   Future<void> logout() async {
@@ -76,8 +76,8 @@ class AuthProvider with ChangeNotifier {
     final username = prefs.getString(PrefsKeys.userName);
     final phoneNumber = prefs.getString(PrefsKeys.userPhone);
     final email = prefs.getString(PrefsKeys.userEmail);
-    final userType = prefs.getString("userType");
-    final profileImage = prefs.getString("profileImage");
+    final userType = prefs.getString(PrefsKeys.userType);
+    final profileImage = prefs.getString(PrefsKeys.userProfile);
     if (await isExpired()) {
       logout();
     } else {
@@ -88,6 +88,55 @@ class AuthProvider with ChangeNotifier {
           email: email,
           profileImageUrl: profileImage,
           userType: userType,
+        );
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> updateUser({
+    String? username,
+    String? phoneNumber,
+    String? email,
+    String? userType,
+    String? profileImageUrl,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (username != null) {
+      await prefs.setString(PrefsKeys.userName, username);
+    }
+    if (phoneNumber != null) {
+      await prefs.setString(PrefsKeys.userPhone, phoneNumber);
+    }
+    if (email != null) {
+      await prefs.setString(PrefsKeys.userEmail, email);
+    }
+    if (userType != null) {
+      await prefs.setString(PrefsKeys.userType, userType);
+    }
+    if (profileImageUrl != null) {
+      await prefs.setString(PrefsKeys.userProfile, profileImageUrl);
+    }
+
+    if (await isExpired()) {
+      logout();
+    } else {
+      final updatedUsername = username ?? prefs.getString(PrefsKeys.userName);
+      final updatedPhoneNumber =
+          phoneNumber ?? prefs.getString(PrefsKeys.userPhone);
+      final updatedEmail = email ?? prefs.getString(PrefsKeys.userEmail);
+      final updatedUserType = userType ?? prefs.getString(PrefsKeys.userType);
+      final updatedProfileImage =
+          profileImageUrl ?? prefs.getString(PrefsKeys.userProfile);
+
+      if (updatedUsername != null && updatedPhoneNumber != null) {
+        _currentUser = User(
+          username: updatedUsername,
+          phoneNumber: updatedPhoneNumber,
+          email: updatedEmail,
+          profileImageUrl: updatedProfileImage,
+          userType: updatedUserType,
         );
         notifyListeners();
       }
@@ -111,7 +160,6 @@ class AuthProvider with ChangeNotifier {
           return true;
         }
       } catch (e) {
-        print(e);
         throw Exception();
       }
     }

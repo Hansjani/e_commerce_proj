@@ -1,3 +1,6 @@
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_get_users_api.dart';
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_api.dart';
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
 import 'package:e_commerce_ui_1/APIs/UserAPI/user_action_api.dart';
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/admin_panel.dart';
@@ -5,6 +8,7 @@ import 'package:e_commerce_ui_1/main_view/Home/cart_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/wishlist_page.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/Products/merchant_products.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/merchant_options.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/OrderTab/order_history.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/register.dart';
@@ -15,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../Constants/SharedPreferences/key_names.dart';
 
 class MainPage extends StatefulWidget {
@@ -32,6 +35,11 @@ class _MainPageState extends State<MainPage> {
   final PageController _pageController = PageController();
   late String userType;
   bool _isLoggingOut = false;
+  late bool isApproved;
+
+  Future<bool> approval() async {
+    return UserCRUD().isApprovedMerchant();
+  }
 
   Future<String?> getUserType() async {
     final prefs = await SharedPreferences.getInstance();
@@ -40,12 +48,25 @@ class _MainPageState extends State<MainPage> {
     return userType;
   }
 
+  Future<void> initUserTypeAndApprovalWithNotifications() async {
+    userType = 'guest';
+    final result = await Future.wait([
+      getUserType(),
+      approval(),
+    ]);
+    setState(() {
+      userType = result[0] as String? ?? 'guest';
+      isApproved = result[1] as bool? ?? false;
+    });
+  }
+
   @override
   void initState() {
-    getUserType().then((value) => setState(() {
-          userType = value ?? '';
-        }));
+    initUserTypeAndApprovalWithNotifications();
     widget.authProvider.initUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminNotificationProvider>().loadOnFirstLogin();
+    });
     super.initState();
   }
 
@@ -62,12 +83,10 @@ class _MainPageState extends State<MainPage> {
   Future<void> _logOut() async {
     setState(() {
       _isLoggingOut = true;
-      print('logging out');
     });
     await widget.authProvider.logout();
     setState(() {
       _isLoggingOut = false;
-      print('logged out');
     });
   }
 
@@ -84,12 +103,12 @@ class _MainPageState extends State<MainPage> {
               future: getUserType(),
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const Icon(Icons.block_rounded);
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   return PopupMenuButton(
-                    itemBuilder: (menuContext) {
+                    itemBuilder: (BuildContext menuContext) {
                       String? userType = snapshot.data;
                       return _menuItems(context, menuContext, userType);
                     },
@@ -120,6 +139,31 @@ class _MainPageState extends State<MainPage> {
             const Center(
               child: CircularProgressIndicator(),
             ),
+          FutureBuilder(
+            future: getUserType(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting || snapshot.data == null) {
+                return const SizedBox();
+              } else {
+                String futureUserType = snapshot.data;
+                if (futureUserType == 'admin') {
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                    left: userType == 'admin'
+                        ? 0
+                        : -MediaQuery.of(context).size.width,
+                    top: 0,
+                    child: NotificationOverlay(
+                      functionNotification: () {},
+                    ),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              }
+            },
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -278,11 +322,17 @@ class _MainPageState extends State<MainPage> {
                 title: const Text('Merchant options'),
                 onTap: () {
                   Navigator.pop(menuContext);
-                  Navigator.push(
+                  if (isApproved == false) {
+                    onInApproved(
+                        context, 'Pending merchant approval! Login again later.');
+                  } else {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MerchantProducts(),
-                      ));
+                        builder: (context) => const MerchantOptions(),
+                      ),
+                    );
+                  }
                 },
               ),
             ),
@@ -290,5 +340,66 @@ class _MainPageState extends State<MainPage> {
     } else {
       return commonMenuItems;
     }
+  }
+}
+
+class NotificationOverlay extends StatelessWidget {
+  final VoidCallback functionNotification;
+
+  const NotificationOverlay({super.key, required this.functionNotification});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AdminNotificationProvider>(
+      builder:
+          (BuildContext context, adminNotificationProvider, Widget? child) {
+        List<AdminNotifications> notifications =
+            adminNotificationProvider.newNotifications;
+        if (notifications.isEmpty) {
+          return const SizedBox();
+        }
+        return Container(
+          color: Colors.black.withOpacity(0.5),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: ListView.builder(
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              AdminNotifications notification = notifications[index];
+              return Dismissible(
+                key: ValueKey(notification.id),
+                onDismissed: (direction) {
+                  functionNotification();
+                  AdminNotificationAPI().updateNotificationStatus(
+                    notification.id,
+                    (message) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                        ),
+                      );
+                    },
+                  ).then((value) =>
+                      adminNotificationProvider.onRead(notification));
+                },
+                child: Card(
+                  child: ListTile(
+                    title: Text('Notification type : ${notification.type}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Text : ${notification.text}'),
+                        Text('Admin action : ${notification.status}'),
+                        Text('Admin status : ${notification.notificationStatus}'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }

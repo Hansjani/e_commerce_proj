@@ -1,7 +1,6 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
 import 'package:e_commerce_ui_1/APIs/UserAPI/user_action_api.dart';
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
-import 'package:e_commerce_ui_1/main_view/Home/home_main.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:flutter/material.dart';
 import '../../user_logics/login_logic.dart';
@@ -144,13 +143,8 @@ class _UserRegisterMainState extends State<UserRegisterMain> {
                             context,
                             success!,
                             () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(builder: (context) {
-                                  return MainPage(authProvider: authProvider);
-                                }),
-                                (route) => false,
-                              );
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context, mainPageRoute, (route) => false);
                             },
                           );
                         }, (error) {

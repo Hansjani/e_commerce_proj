@@ -19,5 +19,9 @@ class PrefsKeys{
 
   static const wishlist = "wishlist";
   static const firstWishInit = "firstWishInit";
+
+  /// Admin Related
+
+  static const firstAdminInit = "firstAdminInit";
 }
 
