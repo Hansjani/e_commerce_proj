@@ -7,11 +7,13 @@ import '../../APIs/AdminActionAPI/item_management_api.dart';
 class CategoryListView extends StatefulWidget {
   final int categoryId;
   final String categoryName;
+  final String userType;
 
   const CategoryListView({
     super.key,
     required this.categoryId,
     required this.categoryName,
+    required this.userType,
   });
 
   @override
@@ -24,12 +26,16 @@ class _CategoryListViewState extends State<CategoryListView> {
   @override
   void initState() {
     super.initState();
-    _futureItems = ItemCRUD().readItem(widget.categoryId);
+    _futureItems = widget.userType == 'admin' || widget.userType == 'merchant'
+        ? ItemCRUD().readItem(widget.categoryId)
+        : ItemCRUD().readItemForCustomer(widget.categoryId);
   }
 
   Future<void> _refreshItemList() async {
     setState(() {
-      _futureItems = ItemCRUD().readItem(widget.categoryId);
+      widget.userType == 'admin' || widget.userType == 'merchant'
+          ? ItemCRUD().readItem(widget.categoryId)
+          : ItemCRUD().readItemForCustomer(widget.categoryId);
     });
   }
 
@@ -82,23 +88,9 @@ class _CategoryListViewState extends State<CategoryListView> {
                               double ratings = snapshot.data!;
                               return RatingWidget(rating: ratings);
                             } else {
-                              return const Text('rating...');
+                              return const Text('loading ratings...');
                             }
                           },
-                        ),
-                        trailing: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              ItemCRUD().deleteItem(
-                                int.parse(item.productId),
-                                (message) {
-                                  setState(() {});
-                                },
-                                (error) {},
-                              );
-                            });
-                          },
-                          icon: const Icon(Icons.delete),
                         ),
                       ),
                     );

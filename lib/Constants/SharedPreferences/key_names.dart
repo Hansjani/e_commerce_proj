@@ -14,6 +14,7 @@ class PrefsKeys{
   static const userEmail = "userEmail";
   static const userType = "userType";
   static const userProfile = "userProfile";
+  static const userCompany = "userCompany";
 
   /// Wishlist Related
 
@@ -24,4 +25,3 @@ class PrefsKeys{
 
   static const firstAdminInit = "firstAdminInit";
 }
-

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_get_users_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
@@ -7,7 +8,6 @@ import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/admin_panel
 import 'package:e_commerce_ui_1/main_view/Home/cart_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_page.dart';
 import 'package:e_commerce_ui_1/main_view/Home/wishlist_page.dart';
-import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/Products/merchant_products.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/MerchantOptions/merchant_options.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/OrderTab/order_history.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
@@ -124,10 +124,10 @@ class _MainPageState extends State<MainPage> {
           PageView(
             controller: _pageController,
             onPageChanged: _onPageChanged,
-            children: const [
-              MainHomePage(),
-              MainWishlistPage(),
-              MainCartPage(),
+            children: [
+              MainHomePage(userType: widget.authProvider.currentUser?.userType ?? 'Guest',),
+              const MainWishlistPage(),
+              const MainCartPage(),
             ],
           ),
           if (_isLoggingOut)

@@ -45,7 +45,7 @@ class _MainWishlistPageState extends State<MainWishlistPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                CategoryItemView(productID: item.productId),
+                                CategoryItemView(productID: item.productId,),
                           ),
                         );
                       },

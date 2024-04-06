@@ -41,18 +41,59 @@ class _ApplicationUsersState extends State<ApplicationUsers> {
                     itemCount: users.length,
                     itemBuilder: (context, index) {
                       final user = users[index];
-                      return ListTile(
-                        leading: Text('${index + 1}'),
-                        title: Text(user.username),
-                        subtitle: Text(user.userType),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ViewUserInfo(user: user),
-                            ),
-                          );
-                        },
+                      return Card(
+                        child: ListTile(
+                          leading: Text('${index + 1}'),
+                          title: Text(user.username),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('User Type : ${user.userType}'),
+                              Text('User Company : ${user.userCompany}'),
+                              if (user.userCompany != 'N/A' &&
+                                  user.userCompany != 'No company')
+                                FutureBuilder(
+                                  future: UserCRUD()
+                                      .getMerchantsForAdminByUsername(
+                                          user.username),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('${snapshot.error}'),
+                                      );
+                                    } else if (snapshot.hasData) {
+                                      AppMerchant? merchant = snapshot.data;
+                                      if (merchant != null) {
+                                        return Column(
+                                          children: [
+                                            Text(
+                                                'MerchantID : ${merchant.id.toString()}'),
+                                            Text(
+                                              'Merchant ${merchant.isApproved == 1 ? 'approved' : 'not approved'}',
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return const Text('Invalid merchant');
+                                      }
+                                    } else {
+                                      return const LinearProgressIndicator();
+                                    }
+                                  },
+                                ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ViewUserInfo(
+                                  user: user,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   );

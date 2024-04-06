@@ -5,7 +5,7 @@ import '../../../../APIs/AdminActionAPI/item_management_api.dart';
 class UpdateProducts extends StatefulWidget {
   final int itemId;
 
-  const UpdateProducts({super.key, required this.itemId});
+  const UpdateProducts({Key? key, required this.itemId}) : super(key: key);
 
   @override
   State<UpdateProducts> createState() => _UpdateProductsState();
@@ -29,90 +29,74 @@ class _UpdateProductsState extends State<UpdateProducts> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: futureItem,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('${snapshot.error}'),
-          );
-        } else if (snapshot.hasData) {
-          Item item = snapshot.data!;
-          productStockController.text = item.productStock;
-          productCategoryController.text = item.productCategory;
-          productNameController.text = item.productName;
-          productPriceController.text = item.productPrice;
-          productDescriptionController.text = item.description;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Update : ${item.productName}'),
-            ),
-            body: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Update Product'),
+      ),
+      body: FutureBuilder<Item>(
+        future: futureItem,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else if (snapshot.hasData) {
+            Item item = snapshot.data!;
+            _initializeControllers(item);
+            return SingleChildScrollView(
               child: Column(
                 children: [
-                  UpdateProductField(
-                    controller: productNameController,
-                    type: TextInputType.text,
-                    hintAndLabel: 'Name',
+                  _buildTextField(
+                    productNameController,
+                    'Name',
+                    TextInputType.text,
                   ),
-                  UpdateProductField(
-                    controller: productCategoryController,
-                    type: TextInputType.text,
-                    hintAndLabel: 'Category',
+                  _buildTextField(
+                    productCategoryController,
+                    'Category',
+                    TextInputType.text,
                   ),
-                  UpdateProductField(
-                    controller: productDescriptionController,
-                    type: TextInputType.multiline,
-                    hintAndLabel: 'Description',
+                  _buildTextField(
+                    productDescriptionController,
+                    'Description',
+                    TextInputType.multiline,
                     minLines: 5,
                     maxLines: 10,
                   ),
-                  UpdateProductField(
-                    controller: productPriceController,
-                    type: TextInputType.text,
-                    hintAndLabel: 'Price',
+                  _buildTextField(
+                    productPriceController,
+                    'Price',
+                    TextInputType.text,
                   ),
-                  UpdateProductField(
-                    controller: productStockController,
-                    type: TextInputType.text,
-                    hintAndLabel: 'Stock',
+                  _buildTextField(
+                    productStockController,
+                    'Stock',
+                    TextInputType.text,
                   ),
                 ],
               ),
-            ),
-          );
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else {
-          return const Center(
-            child: Text('Could not load data'),
-          );
-        }
-      },
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
-}
 
-class UpdateProductField extends StatelessWidget {
-  final TextEditingController controller;
-  final TextInputType type;
-  final String hintAndLabel;
-  final int? maxLines;
-  final int? minLines;
+  void _initializeControllers(Item item) {
+    productStockController.text = item.productStock;
+    productCategoryController.text = item.productCategory;
+    productNameController.text = item.productName;
+    productPriceController.text = item.productPrice;
+    productDescriptionController.text = item.description;
+  }
 
-  const UpdateProductField({
-    super.key,
-    required this.controller,
-    required this.type,
-    required this.hintAndLabel,
-    this.maxLines,
-    this.minLines,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTextField(
+      TextEditingController controller, String hintAndLabel, TextInputType type,
+      {int? minLines, int? maxLines}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(

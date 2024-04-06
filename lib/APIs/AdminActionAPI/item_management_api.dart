@@ -17,17 +17,20 @@ class Item {
   final String productCategory;
   final String productSlider;
   final String productImage;
+  final String productStatus;
 
-  Item(
-      {required this.productId,
-      required this.productName,
-      required this.description,
-      required this.provider,
-      required this.productPrice,
-      required this.productStock,
-      required this.productCategory,
-      required this.productSlider,
-      required this.productImage});
+  Item({
+    required this.productStatus,
+    required this.productId,
+    required this.productName,
+    required this.description,
+    required this.provider,
+    required this.productPrice,
+    required this.productStock,
+    required this.productCategory,
+    required this.productSlider,
+    required this.productImage,
+  });
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
@@ -40,6 +43,7 @@ class Item {
       provider: json['provider'],
       productSlider: json['productSlider'].toString(),
       productImage: json['productImage'],
+      productStatus: json['is_approved'].toString(),
     );
   }
 }
@@ -55,7 +59,29 @@ class ItemCRUD {
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = jsonDecode(response.body);
-      return jsonData.map((item) => Item.fromJson(item)).toList();
+      List<Item> allProducts =
+          jsonData.map((item) => Item.fromJson(item)).toList();
+      return allProducts;
+    } else {
+      log(finalUrl.toString());
+      log(response.body);
+      throw Exception('Failed to load users');
+    }
+  }
+
+  Future<List<Item>> readItemForCustomer(int categoryId) async {
+    Uri finalUrl = baseUrl.resolve('item_read.php?categoryId=$categoryId');
+    final response = await http.get(
+      finalUrl,
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      List<Item> allProducts =
+          jsonData.map((item) => Item.fromJson(item)).toList();
+      List<Item> approvedProducts = allProducts
+          .where((item) => int.parse(item.productStatus) == 1)
+          .toList();
+      return approvedProducts;
     } else {
       log(finalUrl.toString());
       log(response.body);
@@ -242,7 +268,6 @@ class ItemCRUD {
     log(fullUrl.toString());
     final response = await http.delete(fullUrl,
         body: jsonRequestBody, headers: {"Content-Type": "application/json"});
-    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       if (jsonResponse.containsKey('message')) {
@@ -288,6 +313,70 @@ class ItemCRUD {
       throw Exception('Failed to load companies: $e');
     }
   }
+
+  Future<void> adminApproveProduct() async {}
+
+  Future<List<Item>?> getProductsForAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if (token != null) {
+      Uri url = Uri.parse(
+          'http://192.168.29.184/app_db/Admin_actions/admin_panel/product_info/product_action.php');
+      final response = await http.get(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        List<dynamic> jsonProducts = jsonResponse['products'];
+        List<Item> products =
+            jsonProducts.map((item) => Item.fromJson(item)).toList();
+        log(products.toString());
+        return products;
+      } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String error = jsonResponse['error'];
+        throw Exception(error);
+      }
+    }
+    return null;
+  }
+
+  Future<void> updateProductStatus(
+    int productId,
+    bool approval,
+    void Function(String message) success,
+    void Function(String error) error,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if (token != null) {
+      Uri url = Uri.parse(
+          'http://192.168.29.184/app_db/Admin_actions/admin_panel/product_info/product_action.php');
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
+          "productId": productId,
+          "approval": approval == true ? 'yes' : 'no',
+        }),
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String successMessage = jsonResponse['message'];
+        success(successMessage);
+      } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String errorMessage = jsonResponse['error'];
+        error(errorMessage);
+      }
+    }
+  }
 }
 
 void onError(BuildContext context, String error) {
@@ -329,6 +418,31 @@ void onInApproved(BuildContext context, String error) {
     },
   );
 }
+
+void onException(BuildContext context, Exception error, void Function() retry) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Error'),
+        content: Text(error.toString()),
+        actions: [
+          TextButton(
+            onPressed: retry,
+            child: const Text('Retry'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Dismiss'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 void onSuccess(BuildContext context, String message, void Function() success) {
   showDialog(

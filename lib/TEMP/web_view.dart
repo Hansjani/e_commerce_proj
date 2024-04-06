@@ -22,7 +22,7 @@ class _ItemWebViewState extends State<ItemWebView> {
 
   void _hideClass(String className) {
     const jsCode = """
-                         var classes = ['header','related.spad','footer','social-media-bar','product__details__breadcrumb'];
+var classes = ['header','related.spad','footer','social-media-bar','product__details__breadcrumb','breadcrumb-option'];
 classes.forEach(function(name){
     document.querySelectorAll('.'+name).forEach(function(node){
         node.style.display = 'none';
@@ -32,7 +32,7 @@ var cartAdded = false;
 
 // Function to add the cart
 function addCart() {
-    var productDetailsCartOption = document.querySelector(".product__details__cart__option");
+    var productDetailsCartOption = document.getElementById("add_to_cart_msg");
     
     var secondAnchor = document.createElement("a");
     secondAnchor.href = "https://ishtexim.com/cartDetail";
@@ -65,9 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
         addCart(); // Add the cart if it's not already added
     }
 });
-
-
-                   """;
+  """;
     controller.runJavaScript(jsCode).then((value) {
       setState(() {
         _executed = true;

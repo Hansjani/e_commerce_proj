@@ -1,4 +1,5 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_get_users_api.dart';
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
 import 'package:flutter/material.dart';
 
 class ViewUserInfo extends StatefulWidget {
@@ -28,21 +29,92 @@ class _ViewUserInfoState extends State<ViewUserInfo> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: SizedBox(
-              height: 250,
-              width: 250,
-              child: Image.network(_user.imageUrl),
-            ),
-          ),
-          ItemNameTwo(itemName: 'User ID : ${_user.id}'),
-          ItemNameTwo(itemName: 'Username : ${_user.username}'),
-          ItemNameTwo(itemName: 'Email : ${_user.email}'),
-          ItemNameTwo(itemName: 'PhoneNumber : ${_user.phoneNumber}'),
-          ItemNameTwo(itemName: 'User Type : ${_user.userType}'),
-          ItemNameTwo(itemName: 'Company : ${_user.userCompany}'),
+          MerchantInfo(user: _user),
         ],
       ),
+    );
+  }
+}
+
+class MerchantInfo extends StatefulWidget {
+  const MerchantInfo({
+    super.key,
+    required Users user,
+  }) : _user = user;
+
+  final Users _user;
+
+  @override
+  State<MerchantInfo> createState() => _MerchantInfoState();
+}
+
+class _MerchantInfoState extends State<MerchantInfo> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: UserCRUD().getMerchantsForAdminByUsername(widget._user.username),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            if (snapshot.data != null) {
+              final appMerchant = snapshot.data!;
+              return _buildContent(widget._user, appMerchant, context);
+            } else if (snapshot.hasError) {
+              return ItemNameTwo(itemName: snapshot.error.toString());
+            } else {
+              return _buildContent(widget._user, null, context);
+            }
+          default:
+            return const LinearProgressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget _buildContent(
+      Users user, AppMerchant? appMerchant, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: SizedBox(
+            height: 250,
+            width: 250,
+            child: Image.network(widget._user.imageUrl),
+          ),
+        ),
+        ItemNameTwo(itemName: 'User ID : ${widget._user.id}'),
+        ItemNameTwo(itemName: 'Username : ${widget._user.username}'),
+        ItemNameTwo(itemName: 'Email : ${widget._user.email}'),
+        ItemNameTwo(itemName: 'PhoneNumber : ${widget._user.phoneNumber}'),
+        ItemNameTwo(itemName: 'User Type : ${widget._user.userType}'),
+        if (appMerchant != null) ...[
+          ItemNameTwo(itemName: 'Company : ${appMerchant.company}'),
+          Row(
+            children: [
+              ItemNameTwo(
+                itemName:
+                    'Approval : ${appMerchant.isApproved == 1 ? 'Approved' : 'Not approved'}',
+              ),
+              Switch(
+                value: appMerchant.isApproved == 1 ? true : false,
+                onChanged: (value) async {
+                  UserCRUD().updateMerchantApproval(appMerchant.username, value,
+                      (message) {
+                    onSuccess(context, message, () {
+                      setState(() {
+                        Navigator.pop(context);
+                      });
+                    });
+                  }, (error) {
+                    onError(context, error);
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

@@ -7,7 +7,8 @@ import 'package:e_commerce_ui_1/main_view/photo_items_logic/photo_items.dart';
 import 'package:flutter/material.dart';
 
 class MainHomePage extends StatefulWidget {
-  const MainHomePage({super.key});
+  final String userType;
+  const MainHomePage({super.key, required this.userType});
 
   @override
   State<MainHomePage> createState() => _MainHomePageState();
@@ -133,7 +134,7 @@ class _MainHomePageState extends State<MainHomePage> {
                                         categoryId: int.parse(
                                           category.categoryId,
                                         ),
-                                        categoryName: category.categoryName,
+                                        categoryName: category.categoryName, userType: widget.userType,
                                       );
                                     },
                                   ));

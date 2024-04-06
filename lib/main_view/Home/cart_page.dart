@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 class MainCartPage extends StatelessWidget {
-  const MainCartPage({super.key});
+  const MainCartPage({super.key,});
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/Notifications/admin_notification.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/OrderManagement/all_orders_list.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/ProductManagement/get_products_for_admin.dart';
 import 'package:flutter/material.dart';
 import 'UserManagement/app_users.dart';
 
@@ -11,6 +12,12 @@ class AdminPanelList extends StatefulWidget {
 }
 
 class _AdminPanelListState extends State<AdminPanelList> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,8 +32,7 @@ class _AdminPanelListState extends State<AdminPanelList> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ApplicationUsers(),
-                  ));
+                    builder: (context) => const ApplicationUsers()));
             },
           ),
           ListTile(
@@ -42,12 +48,22 @@ class _AdminPanelListState extends State<AdminPanelList> {
           ),
           ListTile(
             title: const Text('App Products'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AllProductsForAdmin(),
+                  ));
+            },
           ),
           ListTile(
             title: const Text('User Orders'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AllOrderList(),));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AllOrderList(),
+                  ));
             },
           ),
           ListTile(

@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderForUser {
   final int orderId;
   final String userId;
+  final String totalAmount;
   final String orderDate;
   final String orderStatus;
   final List<OrderItemForOrder> orderItems;
@@ -18,6 +21,7 @@ class OrderForUser {
     return OrderForUser(
       orderId: json['orderId'],
       userId: json['userId'],
+      totalAmount: json['totalAmount'],
       orderDate: json['orderDate'],
       orderStatus: json['order_status'],
       orderItems: orderItems,
@@ -27,6 +31,7 @@ class OrderForUser {
   OrderForUser({
     required this.orderId,
     required this.userId,
+    required this.totalAmount,
     required this.orderDate,
     required this.orderStatus,
     required this.orderItems,
@@ -54,40 +59,44 @@ class OrderItemForOrder {
     );
   }
 
-  OrderItemForOrder({
-    required this.orderItemId,
-    required this.orderId,
-    required this.productId,
-    required this.quantity,
-    required this.price,
-    required this.imageUrl,
-    required this.status
-  });
+  OrderItemForOrder(
+      {required this.orderItemId,
+      required this.orderId,
+      required this.productId,
+      required this.quantity,
+      required this.price,
+      required this.imageUrl,
+      required this.status});
 }
 
 class OrderForMerchantAPI {
   Uri baseUrl = Uri.parse(
       'http://192.168.29.184/app_db/Seller_actions/oreder_management/');
 
-  Future<OrderForUser?> getOrderDetails(int orderId, String company) async {
-    Uri fullUrl =
-    baseUrl.resolve('send_order.php?orderId=$orderId&company=$company');
+  Future<List<OrderForUser?>?> getOrderDetails(String company) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    Uri fullUrl = baseUrl.resolve('send_order.php?company=$company');
     final response = await http.get(
       fullUrl,
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
+    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      OrderForUser order = OrderForUser.fromJson(jsonResponse['order']);
-      return order;
+      List<dynamic> order = jsonResponse['order'];
+      List<OrderForUser> orders =
+          order.map((order) => OrderForUser.fromJson(order)).toList();
+      return orders;
     }
     return null;
   }
 
-  Future<List<OrderItemForOrder>?> getOrderItems(int orderId,
-      String company) async {
-    Uri fullUrl =
-    baseUrl.resolve('send_order.php?orderId=$orderId&company=$company');
+  Future<List<OrderItemForOrder>?> getOrderItems(String company) async {
+    Uri fullUrl = baseUrl.resolve('send_order.php?company=$company');
     final response = await http.get(
       fullUrl,
       headers: {"Content-Type": "application/json"},
@@ -97,12 +106,48 @@ class OrderForMerchantAPI {
       if (jsonResponse['orderItems'] == 'No order items for this order') {
         return null;
       } else {
-        List<dynamic> order = jsonResponse['orderItems'];
+        List<dynamic> order = jsonResponse['orderItem'];
         List<OrderItemForOrder> orderItems =
-        order.map((items) => OrderItemForOrder.fromJson(items)).toList();
+            order.map((items) => OrderItemForOrder.fromJson(items)).toList();
         return orderItems;
       }
     }
     return null;
+  }
+
+  Future<void> updateOrderItemStatus(
+      int orderId,
+    int orderItemId,
+    String status,
+    void Function(String message) success,
+    void Function(Exception) error,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    Uri fullUrl = baseUrl.resolve('send_order.php');
+    Map<String, dynamic> requestBody = {
+      "orderItemId": orderItemId,
+      "status": status,
+      "orderId":orderId,
+    };
+    String jsonRequestBody = jsonEncode(requestBody);
+    final response = await http.post(
+      fullUrl,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonRequestBody,
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      String successMessage = jsonResponse['message'];
+      success(successMessage);
+    } else {
+      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      String errorMessage = jsonResponse['error'];
+      error(Exception(errorMessage));
+    }
   }
 }

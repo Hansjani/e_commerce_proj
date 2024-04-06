@@ -1,6 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
-class PhotoItems extends StatelessWidget {
+class PhotoItems extends StatefulWidget {
   final String imageDescription;
   final String photoImage;
   final VoidCallback navigationFunction;
@@ -12,9 +14,22 @@ class PhotoItems extends StatelessWidget {
       required this.navigationFunction});
 
   @override
+  State<PhotoItems> createState() => _PhotoItemsState();
+}
+
+class _PhotoItemsState extends State<PhotoItems> {
+  Key imageKey = UniqueKey();
+
+  void retryLoadingImage() {
+    setState(() {
+      imageKey = UniqueKey();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: navigationFunction,
+      onTap: widget.navigationFunction,
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
@@ -32,8 +47,27 @@ class PhotoItems extends StatelessWidget {
           children: [
             Expanded(
               child: Image.network(
-                photoImage,
+                widget.photoImage,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                        ),
+                        const Text('Failed to load data'),
+                        TextButton(
+                          onPressed: retryLoadingImage,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(
@@ -41,9 +75,9 @@ class PhotoItems extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  imageDescription,
-                  style:
-                      const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  widget.imageDescription,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             )
@@ -53,4 +87,3 @@ class PhotoItems extends StatelessWidget {
     );
   }
 }
-

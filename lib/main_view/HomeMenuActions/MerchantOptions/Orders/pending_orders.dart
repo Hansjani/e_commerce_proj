@@ -24,17 +24,18 @@ class _PendingOrdersState extends State<PendingOrders> {
       Users? user = await UserCRUD().getByUsername(username!);
       userCompany = user?.userCompany;
       if (userCompany != null) {
-        return OrderForMerchantAPI()
-            .getOrderItems(widget.orderId, userCompany!);
+        return OrderForMerchantAPI().getOrderItems(userCompany!);
       }
     }
     return null;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Orders'),
+      ),
       body: FutureBuilder(
         future: getOrderItems(),
         builder: (context, snapshot) {
@@ -54,15 +55,25 @@ class _PendingOrdersState extends State<PendingOrders> {
             } else {
               List<OrderItemForOrder> orders = snapshot.data!;
               return ListView.builder(
-                itemCount: snapshot.data!.length,
+                itemCount: orders.length,
                 itemBuilder: (context, index) {
                   OrderItemForOrder order = orders[index];
-                  if(order.status == 'pending_check'){
-                    return ListTile(
-                      title: Text(snapshot.data![index].status.toString()),
-                    );
-                  }
-                  return null;
+                  return ListTile(
+                    leading: SizedBox(
+                      width: 65,
+                      child: order.imageUrl == null
+                          ? Image.network(
+                              'http://192.168.29.184/app_db/server_file/category/1710239821_phone.png')
+                          : Image.network(order.imageUrl!),
+                    ),
+                    title: Text(
+                      'Order Item ID : ${order.orderItemId.toString()}',
+                    ),
+                    subtitle: Text(
+                      'Order Item Status : ${order.status}',
+                    ),
+                    onTap: () {},
+                  );
                 },
               );
             }

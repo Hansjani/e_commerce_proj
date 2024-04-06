@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 class CategoryItemView extends StatefulWidget {
   final int productID;
 
-  const CategoryItemView({super.key, required this.productID});
+  const CategoryItemView({super.key, required this.productID,});
 
   @override
   State<CategoryItemView> createState() => _CategoryItemViewState();

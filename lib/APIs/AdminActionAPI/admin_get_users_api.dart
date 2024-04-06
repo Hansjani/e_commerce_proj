@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,28 @@ class Users {
       userCompany: json['userType'] == 'merchant' || json['userType'] == 'admin'
           ? json['company'] ?? 'No company'
           : 'N/A',
+    );
+  }
+}
+
+class AppMerchant {
+  final int id;
+  final String username;
+  final String company;
+  final int isApproved;
+
+  AppMerchant(
+      {required this.id,
+      required this.username,
+      required this.company,
+      required this.isApproved});
+
+  factory AppMerchant.fromJson(Map<String, dynamic> json) {
+    return AppMerchant(
+      id: json['id'],
+      username: json['username'],
+      company: json['company'],
+      isApproved: json['is_approved'],
     );
   }
 }
@@ -170,25 +193,123 @@ class UserCRUD {
   Future<bool> isApprovedMerchant() async {
     final prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString(PrefsKeys.userName);
-    if(username != null){
-      Uri finalUrl = baseUrl.resolve('merchant_approval.php?username=$username');
+    if (username != null) {
+      Uri finalUrl =
+          baseUrl.resolve('merchant_approval.php?username=$username');
       final response = await http.get(
         finalUrl,
         headers: {"Content-Type": "application/jsom"},
       );
       if (response.statusCode == 200) {
-        Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         int isApproved = jsonResponse['is_approved'] ?? 0;
-        if(isApproved == 1){
+        if (isApproved == 1) {
           return true;
-        }else{
+        } else {
           return false;
         }
       } else {
         throw Exception();
       }
-    }else{
+    } else {
       return false;
+    }
+  }
+
+  Future<void> updateMerchantApproval(
+    String username,
+    bool isApproved,
+    void Function(String onSuccess) success,
+    void Function(String onError) error,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if (token != null) {
+      Map<String, dynamic> jsonRequestBody = {
+        "username": username,
+        "approval": isApproved ? 1 : 0,
+      };
+      Uri url = baseUrl.resolve('merchant_approval.php');
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+        body: jsonEncode(jsonRequestBody),
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String message = jsonResponse['message'];
+        success(message);
+      }else{
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String error = jsonResponse['error'];
+        success(error);
+      }
+    }
+  }
+
+  Future<List<AppMerchant>> getMerchantsForAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if (token != null) {
+      Uri url = baseUrl.resolve('merchant_approval.php?is_admin=1');
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        List<dynamic> jsonMerchant = jsonResponse['merchants'];
+        List<AppMerchant> merchants = jsonMerchant
+            .map((merchant) => AppMerchant.fromJson(merchant))
+            .toList();
+        return merchants;
+      } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String error = jsonResponse['error'];
+        throw Exception(error);
+      }
+    } else {
+      throw Exception('Invalid user');
+    }
+  }
+
+  Future<AppMerchant?> getMerchantsForAdminByUsername(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if (token != null) {
+      Uri url = baseUrl.resolve(
+          'merchant_approval.php?is_admin=1&getType=single&username=$username');
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+      log(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('error')) {
+          return null;
+        }
+
+        Map<String, dynamic> jsonMerchant = jsonResponse['merchant'];
+
+        AppMerchant merchant = AppMerchant.fromJson(jsonMerchant);
+        return merchant;
+      } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String error = jsonResponse['error'];
+        throw Exception(error);
+      }
+    } else {
+      throw Exception('Invalid user');
     }
   }
 }
