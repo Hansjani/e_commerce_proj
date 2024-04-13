@@ -76,6 +76,10 @@ class _AllOrdersForCompanyState extends State<AllOrdersForCompany> {
                           itemCount: orderForUser.length,
                           itemBuilder: (BuildContext context, int index) {
                             OrderForUser? order = orderForUser[index];
+                            List<OrderItemForOrder>? sentOrderItems = order
+                                ?.orderItems
+                                .where((items) => items.status == 'sent')
+                                .toList();
                             return ListTile(
                               leading: Text('${index + 1}'),
                               title: Text('OrderID #${order?.orderId}'),
@@ -84,6 +88,7 @@ class _AllOrdersForCompanyState extends State<AllOrdersForCompany> {
                                 children: [
                                   Text(
                                       'Order items count : ${order?.orderItems.length}'),
+                                  Text('Order items sent : ${sentOrderItems?.length}'),
                                   Text('Order status : ${order!.orderStatus}'),
                                 ],
                               ),
@@ -92,8 +97,9 @@ class _AllOrdersForCompanyState extends State<AllOrdersForCompany> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => OrderActionByMerchant(
-                                      orderItems: order.orderItems,
                                       orderId: order.orderId,
+                                      company: company,
+                                      orderItems: order.orderItems,
                                     ),
                                   ),
                                   (route) => false,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_get_users_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_api.dart';
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_for_app.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
 import 'package:e_commerce_ui_1/APIs/UserAPI/user_action_api.dart';
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
@@ -13,6 +14,7 @@ import 'package:e_commerce_ui_1/main_view/HomeMenuActions/OrderTab/order_history
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/register.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
+import 'package:e_commerce_ui_1/main_view/Providers/item_ratings_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +36,7 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   late String userType;
+  late String username;
   bool _isLoggingOut = false;
   late bool isApproved;
 
@@ -43,20 +46,30 @@ class _MainPageState extends State<MainPage> {
 
   Future<String?> getUserType() async {
     final prefs = await SharedPreferences.getInstance();
-    String? userType = prefs.getString("userType");
+    String? userType = prefs.getString(PrefsKeys.userType);
     prefs.getString(PrefsKeys.userToken);
     return userType;
   }
 
+  Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString(PrefsKeys.userName);
+    prefs.getString(PrefsKeys.userToken);
+    return username;
+  }
+
   Future<void> initUserTypeAndApprovalWithNotifications() async {
     userType = 'guest';
+    username = '';
     final result = await Future.wait([
       getUserType(),
       approval(),
+      getUsername(),
     ]);
     setState(() {
       userType = result[0] as String? ?? 'guest';
       isApproved = result[1] as bool? ?? false;
+      username = result[2] as String? ?? '';
     });
   }
 
@@ -66,6 +79,7 @@ class _MainPageState extends State<MainPage> {
     widget.authProvider.initUser();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AdminNotificationProvider>().loadOnFirstLogin();
+      context.read<UserFeedbackProvider>().init();
     });
     super.initState();
   }
@@ -84,7 +98,16 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _isLoggingOut = true;
     });
-    await widget.authProvider.logout();
+    await widget.authProvider.logout(
+      error: (error) {
+        onError(context, error);
+      },
+      success: (success) {
+        onSuccess(context, success, () {
+          Navigator.pop(context);
+        });
+      },
+    );
     setState(() {
       _isLoggingOut = false;
     });
@@ -125,7 +148,9 @@ class _MainPageState extends State<MainPage> {
             controller: _pageController,
             onPageChanged: _onPageChanged,
             children: [
-              MainHomePage(userType: widget.authProvider.currentUser?.userType ?? 'Guest',),
+              MainHomePage(
+                userType: widget.authProvider.currentUser?.userType ?? 'Guest',
+              ),
               const MainWishlistPage(),
               const MainCartPage(),
             ],
@@ -142,7 +167,8 @@ class _MainPageState extends State<MainPage> {
           FutureBuilder(
             future: getUserType(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting || snapshot.data == null) {
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  snapshot.data == null) {
                 return const SizedBox();
               } else {
                 String futureUserType = snapshot.data;
@@ -243,17 +269,19 @@ class _MainPageState extends State<MainPage> {
         child: ListTile(
           leading: const Icon(Icons.logout),
           title: const Text('Logout'),
-          onTap: () {
+          onTap: () async {
             wishlistProvider.syncWithDatabase().then((value) {
               wishlistProvider.wishlist.clear();
               cartItemProvider.cartItems.clear();
+              AppNotifications.unSubscribeAll(userType);
               Navigator.pop(menuContext);
-              areYouSure(context, () {
-                _logOut().then((value) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, mainPageRoute, (route) => false);
-                });
-              });
+              areYouSure(
+                context,
+                () {
+                  Navigator.pop(context);
+                  _logOut();
+                },
+              );
             });
           },
         ),
@@ -323,8 +351,8 @@ class _MainPageState extends State<MainPage> {
                 onTap: () {
                   Navigator.pop(menuContext);
                   if (isApproved == false) {
-                    onInApproved(
-                        context, 'Pending merchant approval! Login again later.');
+                    onInApproved(context,
+                        'Pending merchant approval! Login again later.');
                   } else {
                     Navigator.push(
                       context,
@@ -390,7 +418,8 @@ class NotificationOverlay extends StatelessWidget {
                       children: [
                         Text('Text : ${notification.text}'),
                         Text('Admin action : ${notification.status}'),
-                        Text('Admin status : ${notification.notificationStatus}'),
+                        Text(
+                            'Admin status : ${notification.notificationStatus}'),
                       ],
                     ),
                   ),

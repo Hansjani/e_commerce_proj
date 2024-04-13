@@ -163,3 +163,24 @@ class NavigationControls extends StatelessWidget {
     );
   }
 }
+
+class TmpOtherWebView extends StatefulWidget {
+  final String url;
+  final String title;
+
+  const TmpOtherWebView({
+    super.key,
+    required this.url,
+    required this.title,
+  });
+
+  @override
+  State<TmpOtherWebView> createState() => _TmpOtherWebViewState();
+}
+
+class _TmpOtherWebViewState extends State<TmpOtherWebView> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

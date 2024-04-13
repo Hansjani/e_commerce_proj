@@ -155,26 +155,33 @@ class UserActionAPI {
   }
 }
 
-void areYouSure(BuildContext context, void Function() placeOrder) {
+void areYouSure(BuildContext context, void Function() placeOrder,{void Function()? changeState}) {
   showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: const Text('Are you sure'),
-        content: const Text(
-            'Do you really want to logout ? Some of the data might not be saved.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('cancel'),
-          ),
-          TextButton(
-            onPressed: placeOrder,
-            child: const Text('yes'),
-          ),
-        ],
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Are you sure'),
+            content: const Text(
+                'Do you really want to logout ? Some of the data might not be saved.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  placeOrder();
+                  changeState?.call();
+                },
+                child: const Text('yes'),
+              ),
+            ],
+          );
+        },
       );
     },
   );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,7 +85,6 @@ class OrderForMerchantAPI {
         "Authorization": "Bearer $token",
       },
     );
-    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       List<dynamic> order = jsonResponse['order'];
@@ -96,6 +96,7 @@ class OrderForMerchantAPI {
   }
 
   Future<List<OrderItemForOrder>?> getOrderItems(String company) async {
+
     Uri fullUrl = baseUrl.resolve('send_order.php?company=$company');
     final response = await http.get(
       fullUrl,
@@ -115,8 +116,39 @@ class OrderForMerchantAPI {
     return null;
   }
 
+  Future<OrderItemForOrder?> getOrderItemDetails(
+    int orderItemId,
+    int orderId,
+    String company,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    if(token == null) {
+      throw Exception("Null token");
+    }
+    Uri fullUrl = baseUrl.resolve('send_order.php?company=$company&orderItemId=$orderItemId');
+    final response = await http.get(
+      fullUrl,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+        "getType": "getOrderItem",
+      },
+    );
+    log(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      log(jsonResponse.toString());
+      OrderItemForOrder? order =
+          OrderItemForOrder.fromJson(jsonResponse['orderItem']);
+      return order;
+    } else {
+      throw Exception(jsonDecode(response.body)['error']);
+    }
+  }
+
   Future<void> updateOrderItemStatus(
-      int orderId,
+    int orderId,
     int orderItemId,
     String status,
     void Function(String message) success,
@@ -128,7 +160,7 @@ class OrderForMerchantAPI {
     Map<String, dynamic> requestBody = {
       "orderItemId": orderItemId,
       "status": status,
-      "orderId":orderId,
+      "orderId": orderId,
     };
     String jsonRequestBody = jsonEncode(requestBody);
     final response = await http.post(
@@ -139,13 +171,46 @@ class OrderForMerchantAPI {
       },
       body: jsonRequestBody,
     );
-    print(response.body);
     if (response.statusCode == 200) {
-      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String successMessage = jsonResponse['message'];
+      log(jsonResponse['log']);
+      success(successMessage);
+    } else {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String errorMessage = jsonResponse['error'];
+      error(Exception(errorMessage));
+    }
+  }
+
+  Future<void> updateOrderStatus(
+    int orderId,
+    String status,
+    void Function(String message) success,
+    void Function(Exception) error,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(PrefsKeys.userToken);
+    Uri fullUrl = baseUrl.resolve('send_order.php');
+    Map<String, dynamic> requestBody = {
+      "status": status,
+      "orderId": orderId,
+    };
+    String jsonRequestBody = jsonEncode(requestBody);
+    final response = await http.post(
+      fullUrl,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonRequestBody,
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       String successMessage = jsonResponse['message'];
       success(successMessage);
     } else {
-      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       String errorMessage = jsonResponse['error'];
       error(Exception(errorMessage));
     }

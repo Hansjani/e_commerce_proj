@@ -1,7 +1,9 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_order_action_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
+import 'package:e_commerce_ui_1/APIs/OrderAPI/see_orders.dart';
 import 'package:e_commerce_ui_1/APIs/UserAPI/cart_api.dart';
 import 'package:e_commerce_ui_1/main_view/Home/cart_page.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/OrderManagement/all_orders_list.dart';
 import 'package:flutter/material.dart';
 
 class UpdateOrderStatus extends StatefulWidget {
@@ -26,6 +28,18 @@ class _UpdateOrderStatusState extends State<UpdateOrderStatus> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AllOrderList(),
+              ),
+              (route) => false,
+            );
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         title: const Text('Order Details'),
       ),
       body: Card(
@@ -52,6 +66,7 @@ class _UpdateOrderStatusState extends State<UpdateOrderStatus> {
                           );
                         } else {
                           return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: orderProducts.length,
                             itemBuilder: (context, index) {
@@ -137,11 +152,46 @@ class _UpdateOrderStatusState extends State<UpdateOrderStatus> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                'Order status : ${widget.ordersForAdmin.orderStatus}'),
-                            Text(
                                 'Order date : ${widget.ordersForAdmin.orderDate}'),
                             Text(
                                 'Total amount : ${widget.ordersForAdmin.totalAmount}'),
+                            DropdownButton(
+                              value: widget.ordersForAdmin.orderStatus,
+                              items: orderStatus.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                OrderForMerchantAPI().updateOrderStatus(
+                                  widget.ordersForAdmin.orderId,
+                                  value!,
+                                  (message) {
+                                    onSuccess(
+                                      context,
+                                      message,
+                                      () {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AllOrderList(),
+                                          ),
+                                          (route) => false,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  (errorMessage) {
+                                    onException(context, errorMessage, () {
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                );
+                              },
+                            ),
                           ],
                         ),
                       );
@@ -156,3 +206,11 @@ class _UpdateOrderStatusState extends State<UpdateOrderStatus> {
     );
   }
 }
+
+List<String> orderStatus = [
+  'received',
+  'processing',
+  'cancelled',
+  'pending',
+  'sent'
+];

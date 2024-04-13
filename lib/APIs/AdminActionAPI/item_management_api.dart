@@ -18,6 +18,7 @@ class Item {
   final String productSlider;
   final String productImage;
   final String productStatus;
+  final String productRating;
 
   Item({
     required this.productStatus,
@@ -30,6 +31,7 @@ class Item {
     required this.productCategory,
     required this.productSlider,
     required this.productImage,
+    this.productRating = '0',
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class Item {
       productSlider: json['productSlider'].toString(),
       productImage: json['productImage'],
       productStatus: json['is_approved'].toString(),
+      productRating: json['pr_rating'] ?? '0',
     );
   }
 }
@@ -442,7 +445,6 @@ void onException(BuildContext context, Exception error, void Function() retry) {
     },
   );
 }
-
 
 void onSuccess(BuildContext context, String message, void Function() success) {
   showDialog(

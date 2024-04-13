@@ -1,3 +1,4 @@
+import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_for_app.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
 import 'package:e_commerce_ui_1/APIs/UserAPI/user_action_api.dart';
 import 'package:e_commerce_ui_1/Constants/routes/routes.dart';
@@ -110,13 +111,19 @@ class _UserLoginMainState extends State<UserLoginMain> {
               Provider.of<AuthProvider>(context, listen: false);
           final prefs = await SharedPreferences.getInstance();
           String? token = prefs.getString(PrefsKeys.userToken);
-          authProvider.login(token).then((value) =>
-              Navigator.pushNamedAndRemoveUntil(
-                  context, mainPageRoute, (route) => false));
+          authProvider.login(token).then((value) async {
+            String? userType = prefs.getString(PrefsKeys.userType);
+            AppNotifications.subscribeToTopic(userType!);
+            Navigator.pushNamedAndRemoveUntil(
+                context, mainPageRoute, (route) => false);
+          });
         });
       },
       (error) {
         onError(context, error);
+        setState(() {
+          _isLoading = false;
+        });
       },
     );
     setState(() {

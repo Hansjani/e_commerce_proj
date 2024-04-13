@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -47,6 +48,7 @@ class ProductFeedbackAPI {
         final response = await http.post(url,
             headers: {"Content-Type": "application/json"},
             body: jsonRequestBody);
+        print(response.body);
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
           String message = jsonResponse['message'];
@@ -59,6 +61,8 @@ class ProductFeedbackAPI {
       } catch (e) {
         throw Exception(e);
       }
+    }else{
+      throw Exception('Please login first');
     }
   }
 
@@ -72,7 +76,7 @@ class ProductFeedbackAPI {
     );
     if (response.statusCode == 200) {
       Map<String,dynamic> jsonResponse = jsonDecode(response.body);
-      List<dynamic>? responseList = jsonDecode(response.body)['feedback'];
+      List<dynamic>? responseList = jsonResponse['feedback'];
       if(responseList == null){
         return 0;
       }
@@ -121,6 +125,7 @@ class ProductFeedbackAPI {
         "Content-Type": "application/json",
       },
     );
+    log(response.body);
     if (response.statusCode == 200) {
       List<dynamic>? feedbackJson = jsonDecode(response.body)['feedback'];
       if (feedbackJson == null) {

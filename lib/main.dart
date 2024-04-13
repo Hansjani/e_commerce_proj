@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_notification_api.dart';
 import 'package:e_commerce_ui_1/firebase_options.dart';
 import 'package:e_commerce_ui_1/main_view/Home/home_main.dart';
@@ -5,8 +6,10 @@ import 'package:e_commerce_ui_1/main_view/HomeMenuActions/login.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/profile.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/register.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
+import 'package:e_commerce_ui_1/main_view/Providers/item_ratings_provider.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/user_auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Constants/routes/routes.dart';
@@ -14,11 +17,18 @@ import 'main_view/Providers/wishlist_provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+@pragma('vm:entry-point')
+Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  if (message.notification != null) {
+    log("Notification received");
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final authProvider = AuthProvider();
   await authProvider.initUser();
   runApp(MainApp(
@@ -38,9 +48,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => UserFeedbackProvider()),
         ChangeNotifierProvider(
-          create: (context) => AdminNotificationProvider(),
-        ),
+            create: (context) => AdminNotificationProvider()),
         ChangeNotifierProvider(create: (context) => WishlistProvider()),
         ChangeNotifierProvider(create: (context) => CartItemProvider()),
         ChangeNotifierProvider.value(value: authProvider)

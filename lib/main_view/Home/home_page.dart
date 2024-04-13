@@ -144,78 +144,89 @@ class _MainHomePageState extends State<MainHomePage> {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            ListTile(
-                              leading: SizedBox(
-                                width: 70,
-                                child: Image.network(
-                                    'https://ishtexim.com/public/images/product/Hot%20&%20Spicy-01_11zon.webp'),
-                              ),
-                              title: const Text('Hot & Spicy Flavour Noodles'),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ItemWebView(
-                                      url:
-                                          'https://ishtexim.com/productDetail/85',
-                                      title: 'Hot & Spicy Flavour Noodles',
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              leading: SizedBox(
-                                width: 70,
-                                child: Image.network(
-                                    'https://ishtexim.com/public/images/product/Shrimp-01_11zon.webp'),
-                              ),
-                              title: const Text('Shrimp Flavour Noodles'),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ItemWebView(
-                                      url:
-                                          'https://ishtexim.com/productDetail/86',
-                                      title: 'Shrimp Flavour Noodles',
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              leading: SizedBox(
-                                width: 70,
-                                child: Image.network(
-                                    'https://ishtexim.com/public/images/product/Veggie-01__11zon.webp'),
-                              ),
-                              title: const Text('Veggie Flavour Noodles'),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ItemWebView(
-                                      url:
-                                          'https://ishtexim.com/productDetail/87',
-                                      title: 'Veggie Flavour Noodles',
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      )
+                      // const WebViewTestList()
                     ],
                   ),
                 );
               }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WebViewTestList extends StatelessWidget {
+  const WebViewTestList({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ListTile(
+            leading: SizedBox(
+              width: 70,
+              child: Image.network(
+                  'https://ishtexim.com/public/images/product/Hot%20&%20Spicy-01_11zon.webp'),
+            ),
+            title: const Text('Hot & Spicy Flavour Noodles'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ItemWebView(
+                    url:
+                        'https://ishtexim.com/productDetail/85',
+                    title: 'Hot & Spicy Flavour Noodles',
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: SizedBox(
+              width: 70,
+              child: Image.network(
+                  'https://ishtexim.com/public/images/product/Shrimp-01_11zon.webp'),
+            ),
+            title: const Text('Shrimp Flavour Noodles'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ItemWebView(
+                    url:
+                        'https://ishtexim.com/productDetail/86',
+                    title: 'Shrimp Flavour Noodles',
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: SizedBox(
+              width: 70,
+              child: Image.network(
+                  'https://ishtexim.com/public/images/product/Veggie-01__11zon.webp'),
+            ),
+            title: const Text('Veggie Flavour Noodles'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ItemWebView(
+                    url:
+                        'https://ishtexim.com/productDetail/87',
+                    title: 'Veggie Flavour Noodles',
+                  ),
+                ),
+              );
             },
           ),
         ],

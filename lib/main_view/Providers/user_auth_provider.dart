@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../APIs/AdminActionAPI/admin_notification_for_app.dart';
 
 class User {
   String username;
@@ -48,6 +53,7 @@ class AuthProvider with ChangeNotifier {
       username: username,
       phoneNumber: phoneNumber,
     );
+    AppNotifications.userInit();
     notifyListeners();
   }
 
@@ -64,11 +70,25 @@ class AuthProvider with ChangeNotifier {
     await prefs.setString(PrefsKeys.userEmail, email);
     await prefs.setString(PrefsKeys.userType, userType);
     await prefs.setString(PrefsKeys.userProfile, profileImageUrl ?? 'null');
+    AppNotifications.userInit();
   }
 
-  Future<void> logout() async {
+  Future<void> logout({
+    void Function(String success)? success,
+    void Function(String error)? error,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    String? username = prefs.getString(PrefsKeys.userName);
+    final response = await http.put(Uri.parse(
+        'http://192.168.29.184/app_db/Rgistered_user_actions/logout.php?username=$username'));
+    if (response.statusCode == 200) {
+      String message = jsonDecode(response.body)['message'];
+      success?.call(message);
+      await prefs.clear();
+    } else {
+      String message = jsonDecode(response.body)['error'];
+      error?.call(message);
+    }
   }
 
   Future<void> initUser() async {

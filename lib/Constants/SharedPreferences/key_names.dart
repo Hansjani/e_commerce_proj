@@ -1,5 +1,4 @@
-class PrefsKeys{
-
+class PrefsKeys {
   /// Product Related
 
   static const sliderId = "sliderId";
@@ -24,4 +23,12 @@ class PrefsKeys{
   /// Admin Related
 
   static const firstAdminInit = "firstAdminInit";
+
+  /// App Notifications Related
+
+  static const firstNotificationInit = "firstNotificationInit";
+
+  /// User Feedback Related
+
+  static const firstFeedbackInit = "firstFeedbackInit";
 }

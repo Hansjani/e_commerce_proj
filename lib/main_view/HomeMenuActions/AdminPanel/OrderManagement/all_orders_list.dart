@@ -1,5 +1,6 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_order_action_api.dart';
 import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/OrderManagement/update_order.dart';
+import 'package:e_commerce_ui_1/main_view/HomeMenuActions/AdminPanel/admin_panel.dart';
 import 'package:flutter/material.dart';
 
 class AllOrderList extends StatefulWidget {
@@ -22,6 +23,18 @@ class _AllOrderListState extends State<AllOrderList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AdminPanelList(),
+              ),
+                  (route) => false,
+            );
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         title: const Text('All Orders'),
       ),
       body: FutureBuilder(

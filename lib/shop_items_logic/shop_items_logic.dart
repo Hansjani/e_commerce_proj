@@ -1,7 +1,10 @@
 import 'dart:developer';
 import 'package:e_commerce_ui_1/APIs/ProductAPI/product_feedback.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
+import 'package:e_commerce_ui_1/main_view/Providers/item_ratings_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class ItemImage extends StatelessWidget {
@@ -153,7 +156,6 @@ class ItemBuy extends StatelessWidget {
   }
 }
 
-
 class NewItemCart extends StatefulWidget {
   final int productId;
   final CartItem cartItem;
@@ -268,18 +270,18 @@ class RatingsChartBar extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$starCount Stars'),
-            const SizedBox(height: 4),
             Row(
               children: [
-                Container(
-                  height: 20,
-                  color: Colors.blue,
-                  width: MediaQuery.of(context).size.width * percentage,
-                  margin: const EdgeInsets.only(right: 8.0),
-                ),
-                Text('${(percentage * 100).toStringAsFixed(2)}%'),
+                Text('$starCount Stars : '),
+                Text('($count / $totalRatings)'),
               ],
+            ),
+            const SizedBox(height: 1),
+            Container(
+              height: 20,
+              color: Colors.blue,
+              width: MediaQuery.of(context).size.width * percentage,
+              margin: const EdgeInsets.only(right: 8.0),
             ),
             const SizedBox(height: 8),
           ],
@@ -290,14 +292,29 @@ class RatingsChartBar extends StatelessWidget {
 }
 
 class CommentsSection extends StatelessWidget {
-  const CommentsSection({super.key, required this.productId});
+  const CommentsSection({
+    super.key,
+    required this.productId,
+    this.commentFunction,
+    required this.futureUsername,
+    required this.userUpdate,
+    this.customDivider,
+  });
 
   final int productId;
+  final VoidCallback? commentFunction;
+  final Future<String?> futureUsername;
+  final Widget? customDivider;
 
   @override
   Widget build(BuildContext context) {
+    final feedbackProvider =
+        Provider.of<UserFeedbackProvider>(context, listen: false);
+    UserFeedback feedbackFromProvider =
+        feedbackProvider.getUserFeedback(productId);
     return FutureBuilder(
-      future: ProductFeedbackAPI().commentsOfProduct(productId),
+      future: Future.wait(
+          [ProductFeedbackAPI().commentsOfProduct(productId), futureUsername]),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -310,38 +327,152 @@ class CommentsSection extends StatelessWidget {
                 child: Text('${snapshot.error}'),
               );
             } else if (snapshot.hasData) {
-              List<ProductFeedback> feedback = snapshot.data!;
-              return SizedBox(
-                height: 500,
-                width: 400,
-                child: ListView.builder(
-                  itemCount: feedback.length,
-                  itemBuilder: (context, index) {
-                    ProductFeedback userFeedback = feedback[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(userFeedback.username),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(userFeedback.comment),
-                            RatingWidget(rating: userFeedback.rating.toDouble()),
-                          ],
-                        ),
+              List<ProductFeedback?>? feedback =
+                  snapshot.data![0] as List<ProductFeedback>?;
+              if (feedback == null) {
+                return Column(
+                  children: [
+                    _userReview(
+                      context,
+                      '',
+                      0,
+                      productId,
+                      feedbackFromProvider
+                    ),
+                    const Center(
+                      child: Text('No feedback for this product'),
+                    ),
+                  ],
+                );
+              } else {
+                String username = snapshot.data![1] as String;
+                ProductFeedback? userFeedback = feedback.firstWhere(
+                  (feed) => feed?.username == username,
+                  orElse: () => ProductFeedback(
+                    rating: 0,
+                    comment: '',
+                    username: username,
+                  ),
+                );
+                log(userFeedback.toString());
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (userFeedback != null)
+                      _userReview(
+                        context,
+                        userFeedback.comment,
+                        userFeedback.rating,
+                        productId,
+                        feedbackFromProvider,
                       ),
-                    );
-                  },
-                ),
-              );
+                    customDivider ?? const SizedBox.shrink(),
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: feedback.length,
+                      itemBuilder: (context, index) {
+                        ProductFeedback? userFeedbacks = feedback[index];
+                        if (userFeedbacks == null) {
+                          return const SizedBox.shrink();
+                        } else {
+                          return Card(
+                            child: ListTile(
+                              title: Text(userFeedbacks.username),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(userFeedbacks.comment),
+                                  RatingWidget(
+                                      rating: userFeedbacks.rating.toDouble()),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                );
+              }
             } else {
-              return const Center(
-                child: Text('No feedback for this product'),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: commentFunction,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(Icons.feedback),
+                        Text('Give your feedback')
+                      ],
+                    ),
+                  ),
+                  const Center(
+                    child: Text('No feedback for this product'),
+                  ),
+                ],
               );
             }
           default:
             return const Center(child: CircularProgressIndicator());
         }
       },
+    );
+  }
+
+  final VoidCallback userUpdate;
+
+  Widget _userReview(
+    BuildContext context,
+    String userComment,
+    int userRating,
+    int productId,
+    UserFeedback feedback,
+  ) {
+    final TextEditingController showCommentController =
+        TextEditingController(text: feedback.comment);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              onTap: userUpdate,
+              readOnly: true,
+              minLines: 5,
+              maxLines: 10,
+              controller: showCommentController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  gapPadding: 4,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20)
+                )
+              ),
+              keyboardType: TextInputType.multiline,
+
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RatingWidget(
+                    rating: userRating.toDouble(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

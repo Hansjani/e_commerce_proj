@@ -14,6 +14,7 @@ class UpdateProducts extends StatefulWidget {
 class _UpdateProductsState extends State<UpdateProducts> {
   late Future<Item> futureItem;
   final TextEditingController productNameController = TextEditingController();
+
   final TextEditingController productDescriptionController =
       TextEditingController();
   final TextEditingController productStockController = TextEditingController();

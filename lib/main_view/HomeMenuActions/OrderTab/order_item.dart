@@ -31,67 +31,63 @@ class OrderItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 250,
-                        width: 350,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: orderItems.length,
-                          itemBuilder: (context, index) {
-                            final orderItem = orderItems[index];
-                            return FutureBuilder(
-                              future:
-                                  ItemCRUD().readByProductId(orderItem.productId),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Center(
-                                    child: Text('${snapshot.error}'),
-                                  );
-                                } else if (snapshot.hasData) {
-                                  Item item = snapshot.data!;
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      children: [
-                                        Column(
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: orderItems.length,
+                        itemBuilder: (context, index) {
+                          final orderItem = orderItems[index];
+                          return FutureBuilder(
+                            future:
+                                ItemCRUD().readByProductId(orderItem.productId),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text('${snapshot.error}'),
+                                );
+                              } else if (snapshot.hasData) {
+                                Item item = snapshot.data!;
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text(
+                                              item.productName),
+                                          SizedBox(
+                                            height: 100,
+                                            width: 100,
+                                            child: Image.network(
+                                                item.productImage),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                                item.productName),
-                                            SizedBox(
-                                              height: 100,
-                                              width: 100,
-                                              child: Image.network(
-                                                  item.productImage),
-                                            ),
+                                                'Price : ${item.productPrice}'),
+                                            Text(
+                                                'Quantity : ${orderItem.quantity}'),
+                                            Text(
+                                                'Total : ${orderItem.quantity * double.parse(item.productPrice)}'),
                                           ],
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  'Price : ${item.productPrice}'),
-                                              Text(
-                                                  'Quantity : ${orderItem.quantity}'),
-                                              Text(
-                                                  'Total : ${orderItem.quantity * double.parse(item.productPrice)}'),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                              },
-                            );
-                          },
-                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                       Text('Order status = ${order.status}'),
                       Text('Grand Total = ${order.amount}'),

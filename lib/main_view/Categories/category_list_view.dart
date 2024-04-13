@@ -57,6 +57,7 @@ class _CategoryListViewState extends State<CategoryListView> {
                 return ListView.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
+                    items.sort((a, b) => b.productRating.compareTo(a.productRating),);
                     Item item = items[index];
                     return Card(
                       child: ListTile(
@@ -77,21 +78,7 @@ class _CategoryListViewState extends State<CategoryListView> {
                           child: Image.network(item.productImage),
                         ),
                         title: Text(item.productName),
-                        subtitle: FutureBuilder(
-                          future: ProductFeedbackAPI().getRatings(
-                            int.parse(item.productId),
-                          ),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text(snapshot.error.toString());
-                            } else if (snapshot.hasData) {
-                              double ratings = snapshot.data!;
-                              return RatingWidget(rating: ratings);
-                            } else {
-                              return const Text('loading ratings...');
-                            }
-                          },
-                        ),
+                        subtitle: RatingWidget(rating: double.parse(item.productRating ?? '0'))
                       ),
                     );
                   },
