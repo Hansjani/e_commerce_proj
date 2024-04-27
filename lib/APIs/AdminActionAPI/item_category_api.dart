@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 class ProductCategory {
   final String categoryId;
   final String categoryName;
@@ -33,7 +35,7 @@ class ProductCategory {
 }
 
 class ProductCategoryAPI {
-  Uri baseUrl = Uri.parse('http://192.168.29.184/app_db/Products/category/categories_get.php');
+  Uri baseUrl = Uri.parse('http://${PlaceHolderImages.ip}/app_db/Products/category/categories_get.php');
 
   Future<List<ProductCategory>> getCategories() async {
     Uri finalUrl = baseUrl.resolve('');

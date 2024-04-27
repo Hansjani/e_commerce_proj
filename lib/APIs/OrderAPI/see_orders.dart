@@ -4,6 +4,8 @@ import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class OrderForUser {
   final int orderId;
   final String userId;
@@ -72,7 +74,7 @@ class OrderItemForOrder {
 
 class OrderForMerchantAPI {
   Uri baseUrl = Uri.parse(
-      'http://192.168.29.184/app_db/Seller_actions/oreder_management/');
+      'http://${PlaceHolderImages.ip}/app_db/Seller_actions/oreder_management/');
 
   Future<List<OrderForUser?>?> getOrderDetails(String company) async {
     final prefs = await SharedPreferences.getInstance();

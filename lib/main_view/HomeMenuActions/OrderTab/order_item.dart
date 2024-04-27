@@ -1,4 +1,5 @@
 import 'package:e_commerce_ui_1/APIs/UserAPI/cart_api.dart';
+import 'package:e_commerce_ui_1/main_view/Billing/generate_bill_pdf.dart';
 import 'package:flutter/material.dart';
 import '../../../APIs/AdminActionAPI/item_management_api.dart';
 
@@ -52,8 +53,7 @@ class OrderItem extends StatelessWidget {
                                     children: [
                                       Column(
                                         children: [
-                                          Text(
-                                              item.productName),
+                                          Text(item.productName),
                                           SizedBox(
                                             height: 100,
                                             width: 100,
@@ -65,8 +65,10 @@ class OrderItem extends StatelessWidget {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                                 'Price : ${item.productPrice}'),
@@ -91,6 +93,11 @@ class OrderItem extends StatelessWidget {
                       ),
                       Text('Order status = ${order.status}'),
                       Text('Grand Total = ${order.amount}'),
+                      ElevatedButton(
+                          onPressed: () {
+                            DownloadBill.downloadBillPDF(order.orderId);
+                          },
+                          child: const Text('Get bill')),
                     ],
                   ),
                 ),

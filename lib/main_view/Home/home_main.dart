@@ -115,6 +115,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    devtools.log('$userType:$username');
     devtools.log('HomeView Build');
     return Scaffold(
       appBar: AppBar(
@@ -151,8 +152,12 @@ class _MainPageState extends State<MainPage> {
               MainHomePage(
                 userType: widget.authProvider.currentUser?.userType ?? 'Guest',
               ),
-              const MainWishlistPage(),
-              const MainCartPage(),
+              MainWishlistPage(
+                userType: widget.authProvider.currentUser?.userType ?? 'Guest',
+              ),
+              MainCartPage(
+                userType: widget.authProvider.currentUser?.userType ?? 'Guest',
+              ),
             ],
           ),
           if (_isLoggingOut)

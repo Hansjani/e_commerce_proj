@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class ProductFeedback {
   final int rating;
   final String comment;
@@ -24,7 +26,7 @@ class ProductFeedback {
 
 class ProductFeedbackAPI {
   Uri baseUrl =
-      Uri.parse('http://192.168.29.184/app_db/Seller_actions/item_management/');
+      Uri.parse('http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/');
 
   Future<void> submitFeedback(
     int rating,

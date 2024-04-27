@@ -57,29 +57,32 @@ class _CategoryListViewState extends State<CategoryListView> {
                 return ListView.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
-                    items.sort((a, b) => b.productRating.compareTo(a.productRating),);
+                    items.sort(
+                      (a, b) => b.productRating.compareTo(a.productRating),
+                    );
                     Item item = items[index];
                     return Card(
                       child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return CategoryItemView(
-                                  productID: int.parse(item.productId),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        leading: SizedBox(
-                          width: 60,
-                          child: Image.network(item.productImage),
-                        ),
-                        title: Text(item.productName),
-                        subtitle: RatingWidget(rating: double.parse(item.productRating ?? '0'))
-                      ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return CategoryItemView(
+                                    productID: int.parse(item.productId),
+                                    userType: widget.userType,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          leading: SizedBox(
+                            width: 60,
+                            child: Image.network(item.productImage),
+                          ),
+                          title: Text(item.productName),
+                          subtitle: RatingWidget(
+                              rating: double.parse(item.productRating))),
                     );
                   },
                 );

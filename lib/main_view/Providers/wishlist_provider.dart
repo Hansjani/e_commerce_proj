@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Constants/SharedPreferences/key_names.dart';
+import '../../Constants/placeholders.dart';
 
 class Wishlist {
   final int productId;
@@ -31,7 +32,7 @@ class Wishlist {
 
 class WishlistProvider with ChangeNotifier {
   Uri baseUrl = Uri.parse(
-      'http://192.168.29.184/app_db/Rgistered_user_actions/wishlist_management/wishlist_api.php');
+      'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/wishlist_management/wishlist_api.php');
 
   final List<Wishlist> _wishlist = [];
 
@@ -146,7 +147,7 @@ class WishlistProvider with ChangeNotifier {
 
       String jsonRequestBody = jsonEncode(requestBody);
       Uri finalUrl = Uri.parse(
-          'http://192.168.29.184/app_db/Rgistered_user_actions/wishlist_management/sync_with_database.php');
+          'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/wishlist_management/sync_with_database.php');
       final response = await http.post(
         finalUrl,
         body: jsonRequestBody,
@@ -154,6 +155,7 @@ class WishlistProvider with ChangeNotifier {
           "Content-Type": "application/json",
         },
       );
+      print(response.body);
       if (response.statusCode == 200) {
         String jsonResponse = jsonDecode(response.body)['message'];
         log(jsonResponse);

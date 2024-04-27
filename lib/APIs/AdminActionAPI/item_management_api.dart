@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class Item {
   final String productId;
   final String productName;
@@ -53,7 +55,7 @@ class Item {
 
 class ItemCRUD {
   Uri baseUrl =
-      Uri.parse('http://192.168.29.184/app_db/Seller_actions/item_management/');
+      Uri.parse('http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/');
 
   Future<List<Item>> readItem(int categoryId) async {
     Uri finalUrl = baseUrl.resolve('item_read.php?categoryId=$categoryId');
@@ -292,7 +294,7 @@ class ItemCRUD {
 
   Future<List<String>> getCompanies() async {
     Uri finalUrl = Uri.parse(
-        'http://192.168.29.184/app_db/Admin_actions/get_provider_company.php');
+        'http://${PlaceHolderImages.ip}/app_db/Admin_actions/get_provider_company.php');
 
     try {
       final response = await http.get(finalUrl);
@@ -324,7 +326,7 @@ class ItemCRUD {
     String? token = prefs.getString(PrefsKeys.userToken);
     if (token != null) {
       Uri url = Uri.parse(
-          'http://192.168.29.184/app_db/Admin_actions/admin_panel/product_info/product_action.php');
+          'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/product_info/product_action.php');
       final response = await http.get(
         url,
         headers: {
@@ -357,7 +359,7 @@ class ItemCRUD {
     String? token = prefs.getString(PrefsKeys.userToken);
     if (token != null) {
       Uri url = Uri.parse(
-          'http://192.168.29.184/app_db/Admin_actions/admin_panel/product_info/product_action.php');
+          'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/product_info/product_action.php');
       final response = await http.post(
         url,
         headers: {

@@ -3,6 +3,8 @@ import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 class OrdersForAdmin {
   final int orderId;
   final String userId;
@@ -34,7 +36,7 @@ class OrdersForAdmin {
 
 class AdminOrderActionAPI {
   Uri baseUrl = Uri.parse(
-      'http://192.168.29.184/app_db/Admin_actions/admin_panel/order_action/');
+      'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/order_action/');
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();

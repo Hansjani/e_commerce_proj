@@ -157,11 +157,16 @@ class ItemBuy extends StatelessWidget {
 }
 
 class NewItemCart extends StatefulWidget {
+  final String userType;
   final int productId;
   final CartItem cartItem;
 
-  const NewItemCart(
-      {super.key, required this.productId, required this.cartItem});
+  const NewItemCart({
+    super.key,
+    required this.productId,
+    required this.cartItem,
+    required this.userType,
+  });
 
   @override
   State<NewItemCart> createState() => _NewItemCartState();
@@ -229,9 +234,26 @@ class _NewItemCartState extends State<NewItemCart> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      cartItemProvider.addToCart(widget.cartItem);
+                      if (widget.userType == 'Guest') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please sign into app to enjoy app'),
+                          ),
+                        );
+                      } else {
+                        cartItemProvider.addToCart(widget.cartItem);
+                      }
                     },
-                    child: const Icon(Icons.shopping_cart),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Add to cart'),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(Icons.add_shopping_cart)
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -299,8 +321,10 @@ class CommentsSection extends StatelessWidget {
     required this.futureUsername,
     required this.userUpdate,
     this.customDivider,
+    required this.userType,
   });
 
+  final String userType;
   final int productId;
   final VoidCallback? commentFunction;
   final Future<String?> futureUsername;
@@ -333,25 +357,20 @@ class CommentsSection extends StatelessWidget {
                 return Column(
                   children: [
                     _userReview(
-                      context,
-                      '',
-                      0,
-                      productId,
-                      feedbackFromProvider
-                    ),
+                        context, '', 0, productId, feedbackFromProvider),
                     const Center(
                       child: Text('No feedback for this product'),
                     ),
                   ],
                 );
               } else {
-                String username = snapshot.data![1] as String;
+                String? username = snapshot.data![1] as String?;
                 ProductFeedback? userFeedback = feedback.firstWhere(
                   (feed) => feed?.username == username,
                   orElse: () => ProductFeedback(
                     rating: 0,
                     comment: '',
-                    username: username,
+                    username: username ?? 'no user',
                   ),
                 );
                 log(userFeedback.toString());
@@ -359,7 +378,7 @@ class CommentsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (userFeedback != null)
+                    if (userFeedback != null && username != 'no user' && userType != 'Guest')
                       _userReview(
                         context,
                         userFeedback.comment,
@@ -448,16 +467,13 @@ class CommentsSection extends StatelessWidget {
               maxLines: 10,
               controller: showCommentController,
               decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  gapPadding: 4,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20)
-                )
-              ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    gapPadding: 4,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20))),
               keyboardType: TextInputType.multiline,
-
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

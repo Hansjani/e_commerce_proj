@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 class ImgHandle {
   Future<XFile?> chooseProfilePhoto() async {
     final ImagePicker photo = ImagePicker();
@@ -41,7 +43,7 @@ class ImgHandle {
     if (token != null) {
       try {
         Uri url = Uri.parse(
-            'http://192.168.29.184/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
+            'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
         final request = http.MultipartRequest('POST', url);
         request.files
             .add(await http.MultipartFile.fromPath('file', image.path));
@@ -75,7 +77,7 @@ class ImgHandle {
     if (token != null) {
       try {
         Uri url = Uri.parse(
-            'http://192.168.29.184/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
+            'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
         final response = await http.get(url);
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -102,7 +104,7 @@ class ImgHandle {
     if (token != null) {
       try {
         Uri url = Uri.parse(
-            'http://192.168.29.184/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
+            'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/update_profile_image.php?token=$token');
         final response = await http.delete(url);
         if (response.statusCode == 200) {
           String jsonResponse = jsonDecode(response.body)['imageUrl'] ?? 'null';

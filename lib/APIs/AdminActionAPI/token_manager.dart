@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 
 class TokenManager {
   late Timer _timer;
@@ -59,7 +61,7 @@ class TokenManager {
       "token": token,
     });
     final response = await http.post(
-      Uri.parse('http://192.168.29.184/app_db/Admin_actions/token_refresh.php'),
+      Uri.parse('http://${PlaceHolderImages.ip}/app_db/Admin_actions/token_refresh.php'),
       body: jsonBody,
       headers: {
         "Content-Type": "application/json",

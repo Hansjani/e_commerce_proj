@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class UserActionAPI {
   Uri baseUrl =
-      Uri.parse('http://192.168.29.184/app_db/Rgistered_user_actions/');
+      Uri.parse('http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/');
 
   Future<void> userLogin(String username, String password,
       void Function(String) success, void Function(String) error) async {
@@ -98,7 +100,7 @@ class UserActionAPI {
 
   Future<List<String>> getCompanies() async {
     Uri finalUrl = Uri.parse(
-        'http://192.168.29.184/app_db/Admin_actions/get_company_for_merchant.php');
+        'http://${PlaceHolderImages.ip}/app_db/Admin_actions/get_company_for_merchant.php');
     try {
       final response = await http.get(finalUrl);
       if (response.statusCode == 200) {

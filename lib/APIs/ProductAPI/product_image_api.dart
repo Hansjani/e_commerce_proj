@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 
 class AddProductImage{
 
@@ -13,7 +15,7 @@ class AddProductImage{
     var request = http.MultipartRequest(
         'POST',
         Uri.parse(
-            'http://192.168.29.184/app_db/Seller_actions/item_management/upload_image.php'));
+            'http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/upload_image.php'));
     for (var image in images) {
       var multipartFile =
       await http.MultipartFile.fromPath('files[]', image.path);
@@ -37,7 +39,7 @@ class AddProductImage{
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(
-          'http://192.168.29.184/app_db/Seller_actions/item_management/update_image.php'),
+          'http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/update_image.php'),
     );
     var multipartFile = await http.MultipartFile.fromPath('file', image!.path);
     request.files.add(multipartFile);
@@ -64,7 +66,7 @@ class AddProductImage{
     String requestJsonBody = jsonEncode(requestBody);
     final response = await http.post(
       Uri.parse(
-          'http://192.168.29.184/app_db/Seller_actions/item_management/upload_to_slider.php'),
+          'http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/upload_to_slider.php'),
       body: requestJsonBody,
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +89,7 @@ class AddProductImage{
     String requestJsonBody = jsonEncode(requestBody);
     final response = await http.post(
       Uri.parse(
-          'http://192.168.29.184/app_db/Seller_actions/item_management/upload_main_image.php'),
+          'http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/upload_main_image.php'),
       body: requestJsonBody,
       headers: {"Content-Type": "application/json"},
     );

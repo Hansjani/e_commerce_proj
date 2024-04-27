@@ -1,16 +1,22 @@
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
-import 'package:e_commerce_ui_1/APIs/UserAPI/cart_api.dart';
 import 'package:e_commerce_ui_1/main_view/Categories/category_item_view.dart';
 import 'package:e_commerce_ui_1/main_view/Providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeleton_text/skeleton_text.dart';
+import '../../APIs/UserAPI/cart_api.dart';
 
 class MainCartPage extends StatelessWidget {
-  const MainCartPage({super.key,});
+  final String userType;
+
+  const MainCartPage({
+    super.key,
+    required this.userType,
+  });
 
   @override
   Widget build(BuildContext context) {
+    List<Item> items = [];
     return Consumer<CartItemProvider>(
       builder: (context, cartItemProvider, child) {
         final cartItems = cartItemProvider.cartItems;
@@ -33,6 +39,13 @@ class MainCartPage extends StatelessWidget {
                       );
                     } else if (snapshot.hasData) {
                       Item item = snapshot.data!;
+                      int existingIndex = items.indexWhere(
+                          (listItem) => listItem.productId == item.productId);
+                      if (existingIndex < 0) {
+                        items.add(item);
+                      } else {
+                        items[existingIndex] = item;
+                      }
                       return Card(
                         child: ListTile(
                           onTap: () {
@@ -40,13 +53,18 @@ class MainCartPage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => CategoryItemView(
-                                    productID: cartItem.productId),
+                                  productID: cartItem.productId,
+                                  userType: userType,
+                                ),
                               ),
                             );
                           },
                           isThreeLine: true,
                           title: Text(item.productName),
-                          leading: Image.network(item.productImage),
+                          leading: SizedBox(
+                            width: 80,
+                            child: Image.network(item.productImage),
+                          ),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,6 +78,7 @@ class MainCartPage extends StatelessWidget {
                               onPressed: () {
                                 cartItemProvider
                                     .removeFromCart(cartItem.productId);
+                                items.remove(item);
                               },
                               icon: const Icon(Icons.delete)),
                         ),
@@ -73,25 +92,26 @@ class MainCartPage extends StatelessWidget {
             ),
             bottomNavigationBar: BottomAppBar(
               child: ElevatedButton(
-                  onPressed: () {
-                    List<OrderProduct> products = cartItems
-                        .map(
-                          (cartItem) => OrderProduct(
-                            productId: cartItem.productId,
-                            quantity: cartItem.productQuantity,
-                          ),
-                        )
-                        .toList();
-                    placeOrder(context, () {
-                      OrderAPI()
-                          .placeOrder(products)
-                          .then((value) => cartItemProvider.clearCart())
-                          .then((value) {
-                        Navigator.pop(context);
-                      });
+                onPressed: () {
+                  List<OrderProduct> products = cartItems
+                      .map(
+                        (cartItem) => OrderProduct(
+                          productId: cartItem.productId,
+                          quantity: cartItem.productQuantity,
+                        ),
+                      )
+                      .toList();
+                  placeOrder(context, () {
+                    OrderAPI()
+                        .placeOrder(products)
+                        .then((value) => cartItemProvider.clearCart())
+                        .then((value) {
+                      Navigator.pop(context);
                     });
-                  },
-                  child: const Text('Press')),
+                  });
+                },
+                child: const Text('Press'),
+              ),
             ),
           );
         }

@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 class AdminNotifications {
   final int id;
   final String type;
@@ -41,7 +43,7 @@ class AdminNotificationAPI {
     String? token = prefs.getString(PrefsKeys.userToken);
 
     Uri url = Uri.parse(
-        'http://192.168.29.184/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
+        'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
     final response = await http.get(
       url,
       headers: {"Content-Type": "application/json"},
@@ -66,7 +68,7 @@ class AdminNotificationAPI {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString(PrefsKeys.userToken);
     Uri url = Uri.parse(
-        'http://192.168.29.184/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
+        'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
     final response = await http.post(
       url,
       body: jsonEncode({
@@ -90,7 +92,7 @@ class AdminNotificationAPI {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString(PrefsKeys.userToken);
     Uri url = Uri.parse(
-        'http://192.168.29.184/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
+        'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/notifications/recieve_notification.php?token=$token');
     final response = await http.delete(
       url,
       body: jsonEncode({

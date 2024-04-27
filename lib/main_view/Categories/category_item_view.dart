@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/admin_carousel_slider_api.dart';
 import 'package:e_commerce_ui_1/APIs/AdminActionAPI/item_management_api.dart';
@@ -15,11 +14,13 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryItemView extends StatefulWidget {
+  final String userType;
   final int productID;
 
   const CategoryItemView({
     super.key,
     required this.productID,
+    required this.userType,
   });
 
   @override
@@ -113,11 +114,20 @@ class _CategoryItemViewState extends State<CategoryItemView> {
               }
             },
           ),
-          _buildDivider('Your feedback'),
+          if (widget.userType != 'Guest') _buildDivider('Your feedback'),
           CommentsSection(
+            userType: widget.userType,
             productId: widget.productID,
             commentFunction: () {
-              _updateComment(context, widget.productID);
+              if (widget.userType == 'Guest') {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please sign into app to enjoy app'),
+                  ),
+                );
+              } else {
+                _updateComment(context, widget.productID);
+              }
             },
             futureUsername: _username,
             userUpdate: () {
@@ -217,27 +227,39 @@ class _CategoryItemViewState extends State<CategoryItemView> {
                 ItemPriceAndWishlist(
                   itemPrice: '₹ ${item.productPrice}',
                   wishlistFunction: () {
-                    if (isWished) {
-                      wishProvider.removeWishByName(item.productName);
-                      wishProvider.storeWishlist();
-                    } else {
-                      wishProvider.addWish(
-                        Wishlist(
-                            productId: int.parse(item.productId),
-                            title: item.productName,
-                            imageUrl: item.productImage,
-                            username: userAuth.currentUser?.username),
+                    if (widget.userType == 'Guest') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please sign into app to enjoy app'),
+                        ),
                       );
-                      wishProvider.storeWishlist();
+                    } else {
+                      if (isWished) {
+                        wishProvider.removeWishByName(item.productName);
+                        wishProvider.storeWishlist();
+                      } else {
+                        wishProvider.addWish(
+                          Wishlist(
+                              productId: int.parse(item.productId),
+                              title: item.productName,
+                              imageUrl: item.productImage,
+                              username: userAuth.currentUser?.username),
+                        );
+                        wishProvider.storeWishlist();
+                      }
+                      setState(() {});
                     }
-                    setState(() {});
                   },
                   wishlistIcon: wishIcon,
                 ),
                 ItemDescription(itemDescription: item.description),
                 Center(
-                    child: NewItemCart(
-                        productId: widget.productID, cartItem: cartItem)),
+                  child: NewItemCart(
+                    productId: widget.productID,
+                    cartItem: cartItem,
+                    userType: widget.userType,
+                  ),
+                ),
                 ItemBuy(
                   buyFunction: () {},
                 ),

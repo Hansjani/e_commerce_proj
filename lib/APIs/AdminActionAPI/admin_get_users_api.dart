@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:e_commerce_ui_1/Constants/SharedPreferences/key_names.dart';
+import 'package:e_commerce_ui_1/Constants/placeholders.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,7 +33,7 @@ class Users {
       username: json['username'],
       phoneNumber: int.parse(json['phone_number']),
       imageUrl: json['imageUrl'] ??
-          'http://192.168.29.184/app_db/server_file/users/user_profile.jpeg',
+          'http://${PlaceHolderImages.ip}/app_db/server_file/users/user_profile.jpeg',
       userType: json['userType'],
       userCompany: json['userType'] == 'merchant' || json['userType'] == 'admin'
           ? json['company'] ?? 'No company'
@@ -65,7 +66,7 @@ class AppMerchant {
 
 class UserCRUD {
   Uri baseUrl = Uri.parse(
-      'http://192.168.29.184/app_db/Admin_actions/admin_panel/user_info/');
+      'http://${PlaceHolderImages.ip}/app_db/Admin_actions/admin_panel/user_info/');
 
   Future<void> createUser(
     String email,
@@ -100,7 +101,7 @@ class UserCRUD {
 
   Future<Users?> getByUsername(String username) async {
     Uri fullUrl = baseUrl.resolve(
-        'http://192.168.29.184/app_db/Rgistered_user_actions/get_by_username.php?username=$username');
+        'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/get_by_username.php?username=$username');
     final response = await http.get(fullUrl, headers: {
       "Content-Type": "application/json",
     });
@@ -116,7 +117,7 @@ class UserCRUD {
 
   Future<List<Users>?> readUser() async {
     Uri fullUrl = baseUrl
-        .resolve('http://192.168.29.184/app_db/Admin_actions/user_read.php');
+        .resolve('http://${PlaceHolderImages.ip}/app_db/Admin_actions/user_read.php');
     final response = await http.get(
       fullUrl,
       headers: {

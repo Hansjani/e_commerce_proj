@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:e_commerce_ui_1/Constants/placeholders.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
@@ -62,7 +63,7 @@ class SliderImages {
 }
 
 class SliderAPI {
-  Uri baseUrl = Uri.parse('http://192.168.29.184/app_db/Admin_actions/slider/');
+  Uri baseUrl = Uri.parse('http://${PlaceHolderImages.ip}/app_db/Admin_actions/slider/');
 
   Future<void> createSlider(
       SliderInfo sliderInfo,

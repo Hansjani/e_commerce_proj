@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class OrderProduct {
   final int productId;
   final int quantity;
@@ -46,7 +48,7 @@ class Order {
 
 class OrderAPI {
   Uri baseUrl = Uri.parse(
-      'http://192.168.29.184/app_db/Rgistered_user_actions/order_management/');
+      'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/order_management/');
 
   Future<void> placeOrder(List<OrderProduct> products) async {
     final prefs = await SharedPreferences.getInstance();

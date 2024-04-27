@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MainWishlistPage extends StatefulWidget {
-  const MainWishlistPage({super.key});
+  final String userType;
+
+  const MainWishlistPage({super.key, required this.userType});
 
   @override
   State<MainWishlistPage> createState() => _MainWishlistPageState();
@@ -44,8 +46,10 @@ class _MainWishlistPageState extends State<MainWishlistPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CategoryItemView(productID: item.productId,),
+                            builder: (context) => CategoryItemView(
+                              productID: item.productId,
+                              userType: widget.userType,
+                            ),
                           ),
                         );
                       },

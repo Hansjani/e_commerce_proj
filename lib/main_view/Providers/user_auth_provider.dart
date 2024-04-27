@@ -7,6 +7,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../APIs/AdminActionAPI/admin_notification_for_app.dart';
+import '../../Constants/placeholders.dart';
 
 class User {
   String username;
@@ -79,15 +80,17 @@ class AuthProvider with ChangeNotifier {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString(PrefsKeys.userName);
-    final response = await http.put(Uri.parse(
-        'http://192.168.29.184/app_db/Rgistered_user_actions/logout.php?username=$username'));
-    if (response.statusCode == 200) {
-      String message = jsonDecode(response.body)['message'];
-      success?.call(message);
-      await prefs.clear();
-    } else {
-      String message = jsonDecode(response.body)['error'];
-      error?.call(message);
+    if (username != null) {
+      final response = await http.put(Uri.parse(
+          'http://${PlaceHolderImages.ip}/app_db/Rgistered_user_actions/logout.php?username=$username'));
+      if (response.statusCode == 200) {
+        String message = jsonDecode(response.body)['message'];
+        success?.call(message);
+        await prefs.clear();
+      } else {
+        String message = jsonDecode(response.body)['error'];
+        error?.call(message);
+      }
     }
   }
 
@@ -99,7 +102,7 @@ class AuthProvider with ChangeNotifier {
     final userType = prefs.getString(PrefsKeys.userType);
     final profileImage = prefs.getString(PrefsKeys.userProfile);
     if (await isExpired()) {
-      logout();
+      await logout();
     } else {
       if (username != null && phoneNumber != null) {
         _currentUser = User(

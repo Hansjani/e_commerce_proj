@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 class MainHomePage extends StatefulWidget {
   final String userType;
+
   const MainHomePage({super.key, required this.userType});
 
   @override
@@ -72,10 +73,11 @@ class _MainHomePageState extends State<MainHomePage> {
                             child: Column(
                               children: [
                                 CarouselSlider(
-                                  items: images
-                                      .map(
-                                          (url) => Image.network(url.imageUrl!))
-                                      .toList(),
+                                  items: images.map(
+                                    (url) {
+                                      return Image.network(url.imageUrl!);
+                                    },
+                                  ).toList(),
                                   options: CarouselOptions(
                                     viewportFraction: 0.95,
                                     enlargeCenterPage: true,
@@ -134,7 +136,8 @@ class _MainHomePageState extends State<MainHomePage> {
                                         categoryId: int.parse(
                                           category.categoryId,
                                         ),
-                                        categoryName: category.categoryName, userType: widget.userType,
+                                        categoryName: category.categoryName,
+                                        userType: widget.userType,
                                       );
                                     },
                                   ));
@@ -181,8 +184,7 @@ class WebViewTestList extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ItemWebView(
-                    url:
-                        'https://ishtexim.com/productDetail/85',
+                    url: 'https://ishtexim.com/productDetail/85',
                     title: 'Hot & Spicy Flavour Noodles',
                   ),
                 ),
@@ -201,8 +203,7 @@ class WebViewTestList extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ItemWebView(
-                    url:
-                        'https://ishtexim.com/productDetail/86',
+                    url: 'https://ishtexim.com/productDetail/86',
                     title: 'Shrimp Flavour Noodles',
                   ),
                 ),
@@ -221,8 +222,7 @@ class WebViewTestList extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ItemWebView(
-                    url:
-                        'https://ishtexim.com/productDetail/87',
+                    url: 'https://ishtexim.com/productDetail/87',
                     title: 'Veggie Flavour Noodles',
                   ),
                 ),

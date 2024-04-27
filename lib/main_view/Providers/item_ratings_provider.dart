@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/placeholders.dart';
+
 class UserFeedback {
   final int productId;
   final String username;
@@ -50,30 +52,32 @@ class UserFeedbackProvider with ChangeNotifier {
     }
   }
 
-  void initFeedback(String username) async {
-    Uri url = Uri.parse(
-        'http://192.168.29.184/app_db/Seller_actions/item_management/item_feedback.php?username=$username');
-    final response = await get(url);
-    if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      List<dynamic> jsonFeedbackList = jsonResponse['feedback'];
-      List<UserFeedback> feedback = jsonFeedbackList.map((tmpFeed) {
-        return UserFeedback(
-          productId: tmpFeed['productId'],
-          username: tmpFeed['username'],
-          comment: tmpFeed['comment'],
-          rating: tmpFeed['rating'],
-        );
-      }).toList();
-      for (UserFeedback userFeedback in feedback) {
-        if (!isInList(userFeedback.productId)) {
-          _feedbackList.add(userFeedback);
+  void initFeedback(String? username) async {
+    if (username != null) {
+      Uri url = Uri.parse(
+          'http://${PlaceHolderImages.ip}/app_db/Seller_actions/item_management/item_feedback.php?username=$username');
+      final response = await get(url);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        List<dynamic> jsonFeedbackList = jsonResponse['feedback'];
+        List<UserFeedback> feedback = jsonFeedbackList.map((tmpFeed) {
+          return UserFeedback(
+            productId: tmpFeed['productId'],
+            username: tmpFeed['username'],
+            comment: tmpFeed['comment'],
+            rating: tmpFeed['rating'],
+          );
+        }).toList();
+        for (UserFeedback userFeedback in feedback) {
+          if (!isInList(userFeedback.productId)) {
+            _feedbackList.add(userFeedback);
+          }
         }
+        log('init feedback');
+        notifyListeners();
+      } else {
+        log(jsonDecode(response.body)['error']);
       }
-      log('init feedback');
-      notifyListeners();
-    } else {
-      throw Exception('Failed to load data');
     }
   }
 

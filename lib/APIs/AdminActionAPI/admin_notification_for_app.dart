@@ -7,6 +7,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import '../../Constants/placeholders.dart';
+
 class AppNotifications {
   static final _notification = FlutterLocalNotificationsPlugin();
   static final _fcmNotification = FirebaseMessaging.instance;
@@ -15,23 +17,24 @@ class AppNotifications {
     final prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString(PrefsKeys.userName);
     log('user : ${username.toString()}');
-    if(username != null){
+    if (username != null) {
       bool isInit = prefs.getBool(PrefsKeys.firstNotificationInit) ?? true;
       log('user first init : $isInit');
-      if(isInit){
+      if (isInit) {
         log('first init');
         await _init(username);
+        await _initLocalNotification();
         await prefs.setBool(PrefsKeys.firstNotificationInit, false);
-      }else{
+      } else {
         log('not first init');
       }
-    }else{
+    } else {
       log('no user');
     }
   }
 
   static _logout() async {
-    final url = Uri.parse('http://192.168.29.184/app_db/init.php');
+    final url = Uri.parse('http://${PlaceHolderImages.ip}/app_db/init.php');
     try {
       final response = await http.post(
         url,
@@ -69,8 +72,16 @@ class AppNotifications {
     );
     final fcmToken = await _fcmNotification.getToken();
     if (fcmToken != null) {
-      await _sendTokenToAPI(fcmToken,username);
+      await _sendTokenToAPI(fcmToken, username);
     }
+  }
+
+  static _initLocalNotification() {
+    _notification.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
   }
 
   static bool _tokenSent = false;
@@ -81,7 +92,7 @@ class AppNotifications {
     if (_tokenSent) {
       return;
     }
-    final url = Uri.parse('http://192.168.29.184/app_db/init.php');
+    final url = Uri.parse('http://${PlaceHolderImages.ip}/app_db/init.php');
     try {
       final response = await http.post(
         url,
@@ -108,7 +119,7 @@ class AppNotifications {
     'user_register',
   ];
 
-   static final List<String> _userTopics = [
+  static final List<String> _userTopics = [
     'order_update_notification',
     'new_item_notification',
   ];
@@ -159,16 +170,100 @@ class AppNotifications {
           notification.hashCode,
           notification.title,
           notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: android.smallIcon,
-            ),
-          ),
+          _androidNotificationDetails(channel, android),
         );
       }
     });
+  }
+
+  static NotificationDetails _androidNotificationDetails(
+      AndroidNotificationChannel channel, AndroidNotification android) {
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        channelDescription: channel.description,
+        icon: android.smallIcon,
+      ),
+    );
+  }
+
+  static Future<void> showDownloadNotification({
+    required int id,
+    required int progress,
+    required String title,
+    required String description,
+  }) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'download_channel',
+      'Download',
+      channelDescription: 'Notification channel for download progress',
+      importance: Importance.high,
+      priority: Priority.high,
+      showProgress: true,
+      maxProgress: 100,
+      progress: progress,
+    );
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await _notification.show(
+      id,
+      title,
+      description,
+      platformChannelSpecifics,
+      payload: 'Download notification',
+    );
+  }
+
+  static void updateDownloadProgress({
+    required int id,
+    required int progress,
+  }) {
+    _notification.show(
+      id,
+      'Download',
+      'Downloading...',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'download_channel',
+          'Download',
+          channelDescription: 'Notification channel for download progress',
+          importance: Importance.high,
+          priority: Priority.high,
+          showProgress: true,
+          maxProgress: 100,
+          progress: progress,
+        ),
+      ),
+    );
+  }
+
+  static void completeDownload({
+    required int id,
+    required int progress,
+  }) {
+    _notification.show(
+      id,
+      'Downloaded',
+      'File download complete',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'download_channel',
+          'Download',
+          channelDescription: 'Notification channel for download progress',
+          importance: Importance.high,
+          priority: Priority.high,
+          showProgress: true,
+          maxProgress: 100,
+          progress: 100,
+        ),
+      ),
+    );
+  }
+
+
+  static Future<void> cancelNotification(int id) async {
+    await _notification.cancel(id);
   }
 }
